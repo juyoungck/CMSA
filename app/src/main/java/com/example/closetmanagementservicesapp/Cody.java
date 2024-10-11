@@ -30,12 +30,14 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.Button;
 
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 
@@ -65,6 +67,7 @@ import java.util.TimeZone;
 public class Cody extends AppCompatActivity implements WeatherDataCallback {
     private DBHelper dbHelper;
     private SQLiteDatabase db;
+    private static List<Integer> cod_loc_value = new ArrayList<>();
     private GridLayout gridLayout;
     private int imgCounter = 3001;
     private int tagCounter = 4001;
@@ -84,6 +87,12 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     static String sky = "";
     static String sky_state = "";
     static float temp = 0;
+    private static boolean isSpinnerValueChanged = false;
+    private static int selected_Cody_LocId = 1;
+    private static Boolean Cody_FilterDataLoad = false;
+    private static ArrayList<Integer> st_sort_cod_id = null;
+    private static String orderBy_cody_set = null;
+    private static String search_cod_name = null;
 
     BottomNavigationView bottomNavigationView;
 
@@ -97,9 +106,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         db = dbHelper.getWritableDatabase();
 
         gridLayout = findViewById(R.id.gl_cody);
-
-        // 코디 위치 스피너 출력
-        fillSpinner_cod_loc();
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.btnCody);
@@ -135,8 +141,19 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         imgViewCounterList = counters.second;
         ItemCodyTag(tagCounter);
 
-        displayDataCody();
+        // 코디 위치 스피너 출력
+        fillSpinner_cod_loc();
+        Spinner_Selected();
 
+        if (!Cody_FilterDataLoad) {
+            displayDataCody();
+        } else if (Cody_FilterDataLoad) {
+            filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
+        }
+
+        if (isSpinnerValueChanged) {
+            Cody_FilterDataLoad = true;
+        }
 
         // 하단 등록 버튼 이동
         ImageButton btnAdd = (ImageButton) findViewById(R.id.btnAdd);
@@ -237,10 +254,18 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 });
 
                 // 정렬 기능 호출 (TabSort 클래스)
-                TabSort_Cody tabsort = new TabSort_Cody();
+                TabSort_Cody tabsort = new TabSort_Cody(getApplicationContext(), bottomSheetDialog, new TabSortCallback() {
+                    @Override
+                    public void onSortResult(ArrayList<Integer> sort_cod_id, String orderBy) {
+                        // 데이터 출력을 위한 메서드
+                        st_sort_cod_id = sort_cod_id;
+                        orderBy_cody_set = orderBy;
+                        Cody_FilterDataLoad = true;
+                        filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
+                    }
+                });
 
-                // 정렬 (날씨)
-                tabsort.weatherSelect(tabView);
+                tabsort.sortApply(tabView);
             }
         });
 
@@ -382,6 +407,28 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
         wd.fetchWeather(getDate, getTime, x, y);  // 비동기적으로 날씨 데이터를 가져옴
 
+        SearchView searchView = findViewById(R.id.btnSearch);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // 검색어가 제출되면 실행될 코드 (제출 후 엔터 시)
+                search_cod_name = query;
+                Cody_FilterDataLoad = true;
+                filterDataByQuery(st_sort_cod_id, orderBy_cody_set, query, selected_Cody_LocId);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // 검색어가 변경될 때마다 필터링된 데이터를 보여주는 메소드 호출
+                Log.d("SearchView", newText);
+                search_cod_name = newText;
+                Cody_FilterDataLoad = true;
+                filterDataByQuery(st_sort_cod_id, orderBy_cody_set, newText, selected_Cody_LocId);
+                return false;
+            }
+        });
+
         // 코디 추천 버튼
         ImageButton cod_rec = (ImageButton) findViewById(R.id.cod_rec);
         cod_rec.setOnClickListener(new View.OnClickListener() {
@@ -500,7 +547,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     }
 
     private void displayDataCody() {
-        // Main_Closet 테이블의 모든 값을 불러옴
+        // Coordy 테이블의 모든 값을 불러옴
         Cursor cursor = db.query("Coordy", null, null, null, null, null, null);
 
         int initialImgCounter = 3001;
@@ -559,7 +606,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 ImageView imageView = (ImageView) findViewById(imgViewCounter);
 
 
-                // 유효성 검사 후 문제가 없으면 해당 코드 실행 (현재 오류 발생 중, 추후 수정)
+                // 유효성 검사 후 문제가 없으면 해당 코드 실행
                 if (textView != null && imageButton != null) {
                     textView.setText(cod_name);
                     imageButton.setImageBitmap(thumbBitmap);
@@ -673,16 +720,45 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         Spinner cod_loc_spinner = findViewById(R.id.main_cod_loc);
 
         List<String> locations = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT cod_loc_name FROM Coordy_Location ORDER BY cod_loc ASC", null);
+        cod_loc_value.clear();
+        Cursor cursor = db.rawQuery("SELECT cod_loc, cod_loc_name FROM Coordy_Location ORDER BY cod_loc ASC", null);
+        int selectedPosition = -1;
 
         while (cursor.moveToNext()) {
             locations.add(cursor.getString(cursor.getColumnIndex("cod_loc_name")));
+            cod_loc_value.add(cursor.getInt(cursor.getColumnIndex("cod_loc")));
+
+            if (cursor.getInt((cursor.getColumnIndex("cod_loc"))) == selected_Cody_LocId) {
+                selectedPosition = cod_loc_value.size() - 1;
+            }
         }
         cursor.close();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_title, locations);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown);
         cod_loc_spinner.setAdapter(adapter);
+
+        if (selectedPosition != -1) {
+            cod_loc_spinner.setSelection(selectedPosition);
+        }
+    }
+
+    private void Spinner_Selected() {
+        Spinner c_loc_spinner = findViewById(R.id.main_cod_loc);
+
+        c_loc_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                selected_Cody_LocId = cod_loc_value.get(position);
+                isSpinnerValueChanged = true;
+                filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     private Pair<List<Integer>, List<Integer>> ItemCodyImgBtn(int imgCounter){
@@ -794,6 +870,329 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
         return tagCounters;
     }
+
+    private void filterDataByQuery(ArrayList<Integer> sort_cod_id, String orderBy, String search_cod_name, int selectedLocId) {
+        String selection = null;
+        String[] selectionArgs = null;
+        StringBuilder cod_id_builder = new StringBuilder();
+
+        if (selectedLocId > 1) {
+            cod_id_builder.append("cod_loc = ?");  // cod_loc 값 필터링
+            if ((search_cod_name != null && !search_cod_name.isEmpty()) || (sort_cod_id != null && !sort_cod_id.isEmpty())) {
+                cod_id_builder.append(" AND ");
+            }
+        }
+
+        if (search_cod_name != null && !search_cod_name.isEmpty()) {
+            if (sort_cod_id != null && !sort_cod_id.isEmpty()) {
+                selectionArgs = new String[sort_cod_id.size() + 1 + (selectedLocId > 1 ? 1 : 0)];
+                cod_id_builder.append("cod_id IN (");
+
+                for (int i = 0; i < sort_cod_id.size(); i++) {
+                    cod_id_builder.append("?");
+                    if (i < sort_cod_id.size() - 1) {
+                        cod_id_builder.append(", ");
+                    }
+                }
+                cod_id_builder.append(") AND cod_name LIKE ?");
+
+                if (selectedLocId > 1) {
+                    selectionArgs[0] = String.valueOf(selectedLocId);
+                    for (int i = 0; i < sort_cod_id.size(); i++) {
+                        selectionArgs[i + 1] = String.valueOf(sort_cod_id.get(i));
+                    }
+                    selectionArgs[sort_cod_id.size() + 1] = "%" + search_cod_name + "%";
+                } else {
+                    for (int i = 0; i < sort_cod_id.size(); i++) {
+                        selectionArgs[i] = String.valueOf(sort_cod_id.get(i));
+                    }
+
+                    selectionArgs[sort_cod_id.size()] = "%" + search_cod_name + "%";
+                }
+                selection = cod_id_builder.toString();
+            } else {
+                selection = "cod_name LIKE ?";
+                if (selectedLocId > 1) {
+                    selection = "cod_loc = ? AND " + selection;
+                    selectionArgs = new String[]{String.valueOf(selectedLocId), "%" + search_cod_name + "%"};
+                } else {
+                    selectionArgs = new String[]{"%" + search_cod_name + "%"};
+                }
+            }
+        } else if (sort_cod_id != null && !sort_cod_id.isEmpty()) {
+            selectionArgs = new String[sort_cod_id.size() + (selectedLocId > 1 ? 1 : 0)];
+
+            cod_id_builder.append("cod_id IN (");
+            for (int i = 0; i < sort_cod_id.size(); i++) {
+                cod_id_builder.append("?");
+                if (i < sort_cod_id.size() - 1) {
+                    cod_id_builder.append(", ");
+                }
+            }
+            cod_id_builder.append(")");
+
+            selection = cod_id_builder.toString();
+
+            if (selectedLocId > 1) {
+                selectionArgs[0] = String.valueOf(selectedLocId);
+                for (int i = 0; i < sort_cod_id.size(); i++) {
+                    selectionArgs[i + 1] = String.valueOf(sort_cod_id.get(i));
+                }
+            } else {
+                for (int i = 0; i < sort_cod_id.size(); i++) {
+                    selectionArgs[i] = String.valueOf(sort_cod_id.get(i));
+                }
+            }
+        } else if (selectedLocId > 1) {
+            selection = "cod_loc = ?";
+            selectionArgs = new String[]{String.valueOf(selectedLocId)};
+        }
+
+        Log.d("filterdata", String.valueOf(selection));
+        Log.d("filterdata", Arrays.toString(selectionArgs));
+        // Coordy 테이블에서 필터링된 데이터를 가져옴
+        Cursor cursor = db.query("Coordy", null, selection, selectionArgs, null, null, orderBy);
+
+        ArrayList<Integer> filter_cod_id = new ArrayList<>();
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int cod_id = cursor.getInt(cursor.getColumnIndexOrThrow("cod_id"));
+                filter_cod_id.add(cod_id);
+            } while (cursor.moveToNext());
+        }
+
+        // 기존에 표시된 데이터를 지우고 새로운 데이터를 보여줌
+        displayFilteredData(cursor, filter_cod_id);
+    }
+
+    private void displayFilteredData(Cursor cursor, ArrayList<Integer> filter_cod_id) {
+        int initialImgCounter = 3001;
+        int initialTagCounter = 4001;
+        int initialImgViewCounter = 5001;
+        int imgRow = 0; // 이미지의 행을 관리하는 변수
+        int tagRow = 0; // 텍스트의 행을 관리하는 변수
+        int Call = 0;
+
+        // GridLayout에서 이전에 추가된 항목들을 모두 제거
+        GridLayout gridLayout = findViewById(R.id.gl_cody);
+        gridLayout.removeAllViews();
+        gridLayout.setPadding(0,-70,0,0);
+
+        // 커서가 유효하면 해당 코드 실행
+        if (cursor != null && cursor.moveToFirst()) {
+            int count = cursor.getCount();
+
+            for (int i = 0; i < count; i++) {
+                String cod_name = cursor.getString(cursor.getColumnIndexOrThrow("cod_name"));
+                String cod_img = cursor.getString(cursor.getColumnIndexOrThrow("cod_img"));
+                Bitmap thumbBitmap = BitmapFactory.decodeFile(cod_img);
+
+                int finalI = i; // 람다 표현식 안에서 i를 사용할 수 있도록 final 변수로 변경
+
+                StringBuilder filter_builder = new StringBuilder();
+
+                filter_builder.append("cod_id IN (");
+                for (int j = 0; j < filter_cod_id.size();j++) {
+                    filter_builder.append("?");
+                    if (j < filter_cod_id.size() - 1) {
+                        filter_builder.append(", ");
+                    }
+                }
+                filter_builder.append(")");
+
+                String selection = filter_builder.toString();
+                String[] selectionArgs = new String[filter_cod_id.size()];
+
+                for (int j = 0; j < filter_cod_id.size(); j++) {
+                    selectionArgs[j] = String.valueOf(filter_cod_id.get(j));
+                }
+
+                // 각 cod_index에 해당하는 c_img 경로를 가져와 비트맵 생성
+                Integer[] cod_indices = new Integer[8];
+                for (int idx = 0; idx < 8; idx++) {
+                    Cursor cod_index_corsor = db.query("Coordy", null, selection, selectionArgs, null, null, null);
+                    if (cod_index_corsor != null && cod_index_corsor.moveToFirst()) {
+                        String columnName = "cod_index" + (idx + 1);
+                        if (!cod_index_corsor.isNull(cursor.getColumnIndex(columnName))) {
+                            // cod_index 값 가져오기
+                            cod_indices[idx] = cod_index_corsor.getInt(cod_index_corsor.getColumnIndex(columnName));
+                        } else {
+                            cod_indices[idx] = null;
+                        }
+                        cod_index_corsor.close();
+                    } else {
+                        cod_indices[idx] = null; // 커서가 비어있으면 null 처리
+                    }
+                }
+
+                Bitmap[] bitmaps = new Bitmap[8];
+                for (int j = 0; j < 8; j++) {
+                    if (cod_indices[j] != null) {
+                        // Main_Closet에서 c_id로 c_img 경로 가져오기
+                        Cursor closetCursor = db.query("Main_Closet", new String[]{"c_img"},
+                                "c_id=?", new String[]{String.valueOf(cod_indices[j])}, null, null, null);
+                        if (closetCursor != null && closetCursor.moveToFirst()) {
+                            String c_img = closetCursor.getString(closetCursor.getColumnIndexOrThrow("c_img"));
+                            Bitmap bitmap = BitmapFactory.decodeFile(c_img);
+                            bitmaps[j] = bitmap;
+                            closetCursor.close();
+                        } else {
+                            bitmaps[j] = null;
+                        }
+                    } else {
+                        bitmaps[j] = null;
+                    }
+                }
+
+                int imgCounter = initialImgCounter + i; // ImageButton의 ID
+                int tagCounter = initialTagCounter + i; // TextView의 ID
+                int SmallimgViewCounter = initialImgViewCounter + i;
+
+                ImageButton imageButton = new ImageButton(this);
+                imageButton.setId(imgCounter);
+                imageButton.setImageBitmap(thumbBitmap);
+
+                TextView textView = new TextView(this);
+                textView.setId(tagCounter);
+                textView.setBackgroundColor(Color.parseColor("#00ff0000"));
+                textView.setGravity(Gravity.CENTER);
+                float dpValue = 16;
+                float fixedTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, getResources().getDisplayMetrics());
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, fixedTextSize);
+                textView.setText(cod_name);
+
+                ImageView imageView = new ImageView(this);
+                imageView.setId(SmallimgViewCounter);
+
+                // GridLayout에 레이아웃 매개변수 설정
+                FrameLayout frameLayout = new FrameLayout(this);
+                GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
+                GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
+                GridLayout.LayoutParams frameParams = new GridLayout.LayoutParams();
+                GridLayout.LayoutParams gridImgViewParams = new GridLayout.LayoutParams();
+
+                GridLayout innerGridLayout = new GridLayout(this);
+                innerGridLayout.setRowCount(4);
+                innerGridLayout.setColumnCount(2);
+
+                frameParams.width = 625;
+                frameParams.height = 700;
+                frameParams.setMargins(60, 120,  -190, 0);
+                frameLayout.setLayoutParams(frameParams);
+
+                // 내부 이미지 뷰(2X4)
+                for (int row = 0; row < 4; row++) {
+                    for(int gridCol = 0; gridCol < 2; gridCol++) {
+                        ImageView gridImgView = new ImageView(this);
+                        gridImgView.setBackgroundColor(Color.parseColor("#00ff0000"));
+                        gridImgView.setId(imgViewCounter);
+                        gridImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                        gridImgViewParams.width = 210;
+                        gridImgViewParams.height = 150;
+                        gridImgViewParams.setMargins(10, 10, 10, 10);
+                        gridImgViewParams.rowSpec = GridLayout.spec(row);
+                        gridImgViewParams.columnSpec = GridLayout.spec(gridCol);
+
+                        gridImgView.setLayoutParams(gridImgViewParams);
+                        innerGridLayout.addView(gridImgView);
+                    }
+                }
+
+                paramsImageButton.width = 440;
+                paramsImageButton.height = 660;
+                paramsImageButton.setMargins(10, 10, 10, 10);
+                paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
+                paramsImageButton.columnSpec = GridLayout.spec(i % 2); // 2개의 열로 정렬
+
+                paramsTextView.width = 440;
+                paramsTextView.height = 75;
+                paramsTextView.setMargins(70, 0, -190, 0);
+                paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
+                paramsTextView.columnSpec = GridLayout.spec(i % 2);
+
+                gridLayout.addView(imageButton, paramsImageButton);
+                gridLayout.addView(textView, paramsTextView);
+                gridLayout.addView(imageView, gridImgViewParams);
+
+                if (textView != null && imageButton != null) {
+                    textView.setText(cod_name);
+                    imageButton.setImageBitmap(thumbBitmap);
+
+                    if (imageView != null) {
+                        textView.setText(cod_name);
+                        imageButton.setImageBitmap(thumbBitmap);
+
+                        int totalImages = bitmaps.length; // 전체 이미지 수
+                        int batchSize = 8; // 한 번에 처리할 이미지 수
+                        for (int batchStart = 0; batchStart < totalImages; batchStart += batchSize) {
+                            // 각 배치마다 8개의 이미지를 처리
+                            for (int j = 0; j < batchSize; j++) {
+                                int index = batchStart + j;
+                                if (index >= totalImages) {
+                                    break; // 인덱스가 총 이미지 수를 넘으면 종료
+                                }
+                                int imgViewId = imgViewCounter + index + ((batchSize - 1) * Call);
+                                imageView = (ImageView) findViewById(imgViewId);
+                                if (imageView != null) {
+                                    if (bitmaps[index] != null) {
+                                        imageView.setImageBitmap(bitmaps[index]);
+                                        // cod_id 값을 태그로 저장 (codIdValues는 cod_id 배열)
+                                        imageView.setTag(cod_indices[index]);
+                                        Log.d("ImageAssignment", "ImageView ID: " + imgViewId + ", Bitmap Index: " + index);
+                                    } else {
+                                        imageView.setImageBitmap(null); // 이미지가 없으면 빈 이미지로 설정
+                                    }
+                                }
+                            }
+                        }
+
+                        Call++; // 실행 횟수 증가
+                    }
+
+                    // 이미지 버튼 클릭 시 상세 정보를 볼 수 있도록 클릭 리스너 설정
+                    imageButton.setOnClickListener(view -> {
+                        new Thread(() -> {
+                            Cursor detailCursor = db.query("Coordy", null, selection, selectionArgs, null, null, null);
+                            if (detailCursor != null && detailCursor.moveToPosition(finalI)) {
+                                Intent getIntent = new Intent(Cody.this, DetailCody.class);
+                                getIntent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
+                                getIntent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
+                                getIntent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
+                                getIntent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
+                                getIntent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
+                                getIntent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
+                                getIntent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
+
+                                getIntent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
+                                getIntent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
+                                getIntent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
+                                getIntent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
+                                getIntent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
+                                getIntent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
+                                getIntent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
+                                getIntent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
+                                runOnUiThread(() -> {
+                                    startActivity(getIntent);
+                                    detailCursor.close();
+                                });
+                            } else if (detailCursor != null) {
+                                detailCursor.close();
+                            }
+                        }).start();
+                    });
+                }
+                // 행(row) 계산: 3개의 항목이 추가될 때마다 다음 행으로 이동
+                if ((imgCounter - 3000) % 2 == 0) {
+                    imgRow++;
+                    tagRow++;
+                }
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+    }
+
     private ArrayList<String> getTagArgs() {
         ArrayList<String> tagList = new ArrayList<>();
 

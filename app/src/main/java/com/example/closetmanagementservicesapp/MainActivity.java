@@ -85,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static Boolean BasicLocationLoad = true;
     private static boolean isSpinnerValueChanged = false;
-    private static int selectedLocId = 1;
-    private static Boolean FilterDataLoad = false;
+    private static int selected_Clothes_LocId = 1;
+    private static Boolean Clothes_FilterDataLoad = false;
     private static Boolean ClickSearchView = false;
     private static ArrayList<Integer> st_sort_c_id = null;
-    private static String orderBy_set = null;
+    private static String orderBy_Clothes_set = null;
     private static String search_c_name = null;
 
     private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
@@ -137,14 +137,14 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if (!FilterDataLoad) {
+        if (!Clothes_FilterDataLoad) {
             displayDataCloset();
-        } else if (FilterDataLoad) {
-            filterDataByQuery(st_sort_c_id, orderBy_set, search_c_name, selectedLocId);
+        } else if (Clothes_FilterDataLoad) {
+            filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
         }
 
         if (isSpinnerValueChanged) {
-            FilterDataLoad = true;
+            Clothes_FilterDataLoad = true;
         }
 
         bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
@@ -276,9 +276,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onSortResult(ArrayList<Integer> sort_c_id, String orderBy) {
                         // 데이터 출력을 위한 메서드
                         st_sort_c_id = sort_c_id;
-                        orderBy_set = orderBy;
-                        FilterDataLoad = true;
-                        filterDataByQuery(st_sort_c_id, orderBy_set, search_c_name, selectedLocId);
+                        orderBy_Clothes_set = orderBy;
+                        Clothes_FilterDataLoad = true;
+                        filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
                     }
                 }, checkboxStates);
 
@@ -442,8 +442,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 // 검색어가 제출되면 실행될 코드 (제출 후 엔터 시)
                 search_c_name = query;
-                FilterDataLoad = true;
-                filterDataByQuery(st_sort_c_id, orderBy_set, query, selectedLocId);
+                Clothes_FilterDataLoad = true;
+                filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, query, selected_Clothes_LocId);
                 return false;
             }
 
@@ -452,8 +452,8 @@ public class MainActivity extends AppCompatActivity {
                 // 검색어가 변경될 때마다 필터링된 데이터를 보여주는 메소드 호출
                 Log.d("SearchView", newText);
                 search_c_name = newText;
-                FilterDataLoad = true;
-                filterDataByQuery(st_sort_c_id, orderBy_set, newText, selectedLocId);
+                Clothes_FilterDataLoad = true;
+                filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, newText, selected_Clothes_LocId);
                 return false;
             }
         });
@@ -560,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
             locations.add(cursor.getString(cursor.getColumnIndex("c_loc_name")));
             c_loc_value.add(cursor.getInt(cursor.getColumnIndex("c_loc")));
 
-            if (cursor.getInt((cursor.getColumnIndex("c_loc"))) == selectedLocId) {
+            if (cursor.getInt((cursor.getColumnIndex("c_loc"))) == selected_Clothes_LocId) {
                 selectedPosition = c_loc_value.size() - 1;
             }
         }
@@ -581,9 +581,9 @@ public class MainActivity extends AppCompatActivity {
         c_loc_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                selectedLocId = c_loc_value.get(position);
+                selected_Clothes_LocId = c_loc_value.get(position);
                 isSpinnerValueChanged = true;
-                filterDataByQuery(st_sort_c_id, orderBy_set, search_c_name, selectedLocId);
+                filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
             }
 
             @Override
@@ -728,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (search_c_name != null && !search_c_name.isEmpty()) {
             if (sort_c_id != null && !sort_c_id.isEmpty()) {
-                selectionArgs = new String[sort_c_id.size() + 2];
+                selectionArgs = new String[sort_c_id.size() + 1 + (selectedLocId > 1 ? 1 : 0)];
 
                 c_id_builder.append("c_id IN (");
                 for (int i = 0; i < sort_c_id.size(); i++) {
