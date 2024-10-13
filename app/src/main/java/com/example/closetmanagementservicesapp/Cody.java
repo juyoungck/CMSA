@@ -82,7 +82,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     private List<Integer> imgViewCounterList;
     private List<Integer> tagCounterList;
     String date = "", time = "";
-    String x = "55", y = "127";
+    String x = "60", y = "127";
     private GpsHelper gpsHelper;
     private ExcelReader excelReader;
     TextView weatherTextView,timeNow;
@@ -388,7 +388,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                     String y = gridCoordinates[1];
                     if (x=="0"&&y=="0"){
                         Toast.makeText(Cody.this, "등록된 위치가 없어 위치와 함께 문의 바랍니다", Toast.LENGTH_LONG).show();
-                        x = "55";
+                        x = "60";
                         y = "127";
                     }
                     System.out.println("격자값 x: " + x + ", y: " + y);

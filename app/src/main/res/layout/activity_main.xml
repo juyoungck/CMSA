@@ -102,7 +102,7 @@
                         android:drawableLeft="@drawable/location"
                         android:drawablePadding="0dp"
                         android:paddingLeft="0dp"
-                        android:text="주소 출력"
+                        android:text="서울시 종로구"
                         android:textSize="14dp" />
 
                     <ImageButton
