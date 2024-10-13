@@ -971,12 +971,11 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         int initialImgViewCounter = 5001;
         int imgRow = 0; // 이미지의 행을 관리하는 변수
         int tagRow = 0; // 텍스트의 행을 관리하는 변수
-        int Call = 0;
+
 
         // GridLayout에서 이전에 추가된 항목들을 모두 제거
         GridLayout gridLayout = findViewById(R.id.gl_cody);
         gridLayout.removeAllViews();
-        gridLayout.setPadding(0,-70,0,0);
 
         // 커서가 유효하면 해당 코드 실행
         if (cursor != null && cursor.moveToFirst()) {
@@ -987,12 +986,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 String cod_img = cursor.getString(cursor.getColumnIndexOrThrow("cod_img"));
                 Bitmap thumbBitmap = BitmapFactory.decodeFile(cod_img);
 
-                int finalI = i; // 람다 표현식 안에서 i를 사용할 수 있도록 final 변수로 변경
-
                 StringBuilder filter_builder = new StringBuilder();
-
                 filter_builder.append("cod_id IN (");
-                for (int j = 0; j < filter_cod_id.size();j++) {
+                for (int j = 0; j < filter_cod_id.size(); j++) {
                     filter_builder.append("?");
                     if (j < filter_cod_id.size() - 1) {
                         filter_builder.append(", ");
@@ -1010,18 +1006,13 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 // 각 cod_index에 해당하는 c_img 경로를 가져와 비트맵 생성
                 Integer[] cod_indices = new Integer[8];
                 for (int idx = 0; idx < 8; idx++) {
-                    Cursor cod_index_corsor = db.query("Coordy", null, selection, selectionArgs, null, null, null);
-                    if (cod_index_corsor != null && cod_index_corsor.moveToFirst()) {
-                        String columnName = "cod_index" + (idx + 1);
-                        if (!cod_index_corsor.isNull(cursor.getColumnIndex(columnName))) {
-                            // cod_index 값 가져오기
-                            cod_indices[idx] = cod_index_corsor.getInt(cod_index_corsor.getColumnIndex(columnName));
-                        } else {
-                            cod_indices[idx] = null;
-                        }
-                        cod_index_corsor.close();
+                    String columnName = "cod_index" + (idx + 1);
+                    int columnIndex = cursor.getColumnIndex(columnName);
+                    if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
+                        // cod_index 값 가져오기
+                        cod_indices[idx] = cursor.getInt(columnIndex);
                     } else {
-                        cod_indices[idx] = null; // 커서가 비어있으면 null 처리
+                        cod_indices[idx] = null;
                     }
                 }
 
@@ -1046,12 +1037,56 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
                 int imgCounter = initialImgCounter + i; // ImageButton의 ID
                 int tagCounter = initialTagCounter + i; // TextView의 ID
-                int SmallimgViewCounter = initialImgViewCounter + i;
+                int imgViewCounter = initialImgViewCounter + i;
+
+                gridLayout.setRowCount(50);
+                gridLayout.setColumnCount(2);
+
+
+                FrameLayout frameLayout = new FrameLayout(this);
+                GridLayout.LayoutParams frameParams = new GridLayout.LayoutParams();
+                frameParams.width = 625;
+                frameParams.height = 700;
+                frameParams.setMargins(55, 120, -190, 0);
+                frameParams.rowSpec = GridLayout.spec(imgRow * 2);
+                frameParams.columnSpec = GridLayout.spec(i % 2);
+                frameLayout.setLayoutParams(frameParams);
 
                 ImageButton imageButton = new ImageButton(this);
                 imageButton.setId(imgCounter);
+                imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
+                imageButton.setPadding(0,0,0,0);
                 imageButton.setImageBitmap(thumbBitmap);
+                imageButton.setBackgroundColor(Color.parseColor("#00ff0000"));
 
+                // 내부 GridLayout 생성
+                GridLayout innerGridLayout = new GridLayout(this);
+                innerGridLayout.setRowCount(4);
+                innerGridLayout.setColumnCount(2);
+
+                // 내부 ImageView 생성 및 추가
+                List<ImageView> innerImageViews = new ArrayList<>();
+                for (int row = 0; row < 4; row++) {
+                    for (int gridCol = 0; gridCol < 2; gridCol++) {
+                        ImageView gridImgView = new ImageView(this);
+                        gridImgView.setBackgroundColor(Color.parseColor("#00ff0000"));
+                        gridImgView.setId(imgViewCounter);
+                        gridImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                        GridLayout.LayoutParams gridImgViewParams = new GridLayout.LayoutParams();
+                        gridImgViewParams.width = 210;
+                        gridImgViewParams.height = 150;
+                        gridImgViewParams.setMargins(10, 10, 10, 10);
+                        gridImgViewParams.rowSpec = GridLayout.spec(row);
+                        gridImgViewParams.columnSpec = GridLayout.spec(gridCol);
+                        gridImgView.setLayoutParams(gridImgViewParams);
+
+                        innerGridLayout.addView(gridImgView);
+                        innerImageViews.add(gridImgView);
+                    }
+                }
+
+                // TextView 생성
                 TextView textView = new TextView(this);
                 textView.setId(tagCounter);
                 textView.setBackgroundColor(Color.parseColor("#00ff0000"));
@@ -1061,137 +1096,85 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, fixedTextSize);
                 textView.setText(cod_name);
 
-                ImageView imageView = new ImageView(this);
-                imageView.setId(SmallimgViewCounter);
+                frameLayout.addView(innerGridLayout);
 
-                // GridLayout에 레이아웃 매개변수 설정
-                FrameLayout frameLayout = new FrameLayout(this);
+                gridLayout.addView(frameLayout);
+
                 GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
                 GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
-                GridLayout.LayoutParams frameParams = new GridLayout.LayoutParams();
-                GridLayout.LayoutParams gridImgViewParams = new GridLayout.LayoutParams();
-
-                GridLayout innerGridLayout = new GridLayout(this);
-                innerGridLayout.setRowCount(4);
-                innerGridLayout.setColumnCount(2);
-
-                frameParams.width = 625;
-                frameParams.height = 700;
-                frameParams.setMargins(60, 120,  -190, 0);
-                frameLayout.setLayoutParams(frameParams);
-
-                // 내부 이미지 뷰(2X4)
-                for (int row = 0; row < 4; row++) {
-                    for(int gridCol = 0; gridCol < 2; gridCol++) {
-                        ImageView gridImgView = new ImageView(this);
-                        gridImgView.setBackgroundColor(Color.parseColor("#00ff0000"));
-                        gridImgView.setId(imgViewCounter);
-                        gridImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-                        gridImgViewParams.width = 210;
-                        gridImgViewParams.height = 150;
-                        gridImgViewParams.setMargins(10, 10, 10, 10);
-                        gridImgViewParams.rowSpec = GridLayout.spec(row);
-                        gridImgViewParams.columnSpec = GridLayout.spec(gridCol);
-
-                        gridImgView.setLayoutParams(gridImgViewParams);
-                        innerGridLayout.addView(gridImgView);
-                    }
-                }
 
                 paramsImageButton.width = 440;
                 paramsImageButton.height = 660;
-                paramsImageButton.setMargins(10, 10, 10, 10);
+                paramsImageButton.setMargins(65, 130, 10, 10);
                 paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
                 paramsImageButton.columnSpec = GridLayout.spec(i % 2); // 2개의 열로 정렬
 
                 paramsTextView.width = 440;
                 paramsTextView.height = 75;
-                paramsTextView.setMargins(70, 0, -190, 0);
+                paramsTextView.setMargins(65, 0, -190, 0);
                 paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
                 paramsTextView.columnSpec = GridLayout.spec(i % 2);
 
                 gridLayout.addView(imageButton, paramsImageButton);
                 gridLayout.addView(textView, paramsTextView);
-                gridLayout.addView(imageView, gridImgViewParams);
 
-                if (textView != null && imageButton != null) {
-                    textView.setText(cod_name);
-                    imageButton.setImageBitmap(thumbBitmap);
-
-                    if (imageView != null) {
-                        textView.setText(cod_name);
-                        imageButton.setImageBitmap(thumbBitmap);
-
-                        int totalImages = bitmaps.length; // 전체 이미지 수
-                        int batchSize = 8; // 한 번에 처리할 이미지 수
-                        for (int batchStart = 0; batchStart < totalImages; batchStart += batchSize) {
-                            // 각 배치마다 8개의 이미지를 처리
-                            for (int j = 0; j < batchSize; j++) {
-                                int index = batchStart + j;
-                                if (index >= totalImages) {
-                                    break; // 인덱스가 총 이미지 수를 넘으면 종료
-                                }
-                                int imgViewId = imgViewCounter + index + ((batchSize - 1) * Call);
-                                imageView = (ImageView) findViewById(imgViewId);
-                                if (imageView != null) {
-                                    if (bitmaps[index] != null) {
-                                        imageView.setImageBitmap(bitmaps[index]);
-                                        // cod_id 값을 태그로 저장 (codIdValues는 cod_id 배열)
-                                        imageView.setTag(cod_indices[index]);
-                                        Log.d("ImageAssignment", "ImageView ID: " + imgViewId + ", Bitmap Index: " + index);
-                                    } else {
-                                        imageView.setImageBitmap(null); // 이미지가 없으면 빈 이미지로 설정
-                                    }
-                                }
-                            }
-                        }
-
-                        Call++; // 실행 횟수 증가
+                for (int index = 0; index < bitmaps.length && index < innerImageViews.size(); index++) {
+                    ImageView imgView = innerImageViews.get(index);
+                    if (bitmaps[index] != null) {
+                        imgView.setImageBitmap(bitmaps[index]);
+                        imgView.setTag(cod_indices[index]);
+                    } else {
+                        imgView.setImageBitmap(null);
                     }
-
-                    // 이미지 버튼 클릭 시 상세 정보를 볼 수 있도록 클릭 리스너 설정
-                    imageButton.setOnClickListener(view -> {
-                        new Thread(() -> {
-                            Cursor detailCursor = db.query("Coordy", null, selection, selectionArgs, null, null, null);
-                            if (detailCursor != null && detailCursor.moveToPosition(finalI)) {
-                                Intent getIntent = new Intent(Cody.this, DetailCody.class);
-                                getIntent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
-                                getIntent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
-                                getIntent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
-                                getIntent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
-                                getIntent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
-                                getIntent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
-                                getIntent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
-
-                                getIntent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
-                                getIntent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
-                                getIntent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
-                                getIntent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
-                                getIntent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
-                                getIntent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
-                                getIntent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
-                                getIntent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
-                                runOnUiThread(() -> {
-                                    startActivity(getIntent);
-                                    detailCursor.close();
-                                });
-                            } else if (detailCursor != null) {
-                                detailCursor.close();
-                            }
-                        }).start();
-                    });
                 }
-                // 행(row) 계산: 3개의 항목이 추가될 때마다 다음 행으로 이동
+
+                // Set OnClickListener for imageButton
+                int finalI = i;
+                imageButton.setOnClickListener(view -> {
+                    new Thread(() -> {
+                        Cursor detailCursor = db.query("Coordy", null, selection, selectionArgs, null, null, null);
+                        if (detailCursor != null && detailCursor.moveToPosition(finalI)) {
+                            Intent intent = new Intent(Cody.this, DetailCody.class);
+                            intent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
+                            intent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
+                            intent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
+                            intent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
+                            intent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
+                            intent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
+                            intent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
+
+                            intent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
+                            intent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
+                            intent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
+                            intent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
+                            intent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
+                            intent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
+                            intent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
+                            intent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
+
+                            runOnUiThread(() -> {
+                                startActivity(intent);
+                                detailCursor.close();
+                            });
+                        } else if (detailCursor != null) {
+                            detailCursor.close();
+                        }
+                    }).start();
+                });
+
+                // 행(row) 계산: 2개의 항목이 추가될 때마다 다음 행으로 이동
                 if ((imgCounter - 3000) % 2 == 0) {
                     imgRow++;
                     tagRow++;
                 }
+
+                // 커서 이동
                 cursor.moveToNext();
             }
             cursor.close();
         }
     }
+
 
     private ArrayList<String> getTagArgs() {
         ArrayList<String> tagList = new ArrayList<>();
