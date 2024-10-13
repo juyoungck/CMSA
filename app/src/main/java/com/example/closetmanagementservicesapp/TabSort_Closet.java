@@ -819,6 +819,9 @@ public class TabSort_Closet extends AppCompatActivity {
         CheckBox weatherSelect_fall = (CheckBox) view.findViewById(R.id.weatherSelect_fall);
         CheckBox weatherSelect_winter = (CheckBox) view.findViewById(R.id.weatherSelect_winter);
         CheckBox weatherSelect_communal = (CheckBox) view.findViewById(R.id.weatherSelect_communal);
+        CheckBox sortSelect_name = (CheckBox) view.findViewById(R.id.sortSelect_name);
+        CheckBox sortSelect_asc = (CheckBox) view.findViewById(R.id.sortSelect_asc);
+
         if (weatherSelect_spring.isChecked()) {
             weatherSelect_spring.setBackgroundResource(R.drawable.left_rounded_on);
         } else {
@@ -843,6 +846,20 @@ public class TabSort_Closet extends AppCompatActivity {
             weatherSelect_communal.setBackgroundResource(R.drawable.right_rounded_on);
         } else {
             weatherSelect_communal.setBackgroundResource(R.drawable.right_rounded_off);
+        }
+        if(sortSelect_name.isChecked()) {
+            sortSelect_name.setBackgroundResource(R.drawable.left_rounded_on);
+            sortSelect_name.setText("이름순정렬");
+        } else {
+            sortSelect_name.setBackgroundResource(R.drawable.left_rounded_off);
+            sortSelect_name.setText("날짜순정렬");
+        }
+        if(sortSelect_asc.isChecked()) {
+            sortSelect_asc.setBackgroundResource(R.drawable.right_rounded_on);
+            sortSelect_asc.setText("↓ 내림차순");
+        } else {
+            sortSelect_asc.setBackgroundResource(R.drawable.right_rounded_off);
+            sortSelect_asc.setText("↑ 오름차순");
         }
     }
 }
