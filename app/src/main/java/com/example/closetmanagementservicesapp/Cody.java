@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -57,9 +58,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -93,6 +96,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     private static ArrayList<Integer> st_sort_cod_id = null;
     private static String orderBy_cody_set = null;
     private static String search_cod_name = null;
+
+    private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
+    private static boolean isAppStarted = false;
 
     BottomNavigationView bottomNavigationView;
 
@@ -263,9 +269,17 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                         Cody_FilterDataLoad = true;
                         filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
                     }
-                });
+                }, checkboxStates);
 
                 tabsort.sortApply(tabView);
+
+                bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        checkboxStates = tabsort.getCheckboxStates(tabView);
+                        saveCheckboxStates();
+                    }
+                });
             }
         });
 
@@ -536,6 +550,12 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 }
             }
         });
+    }
+
+    protected void onResume() {
+        super.onResume();
+        // SharedPreferences에서 체크박스 상태 로드
+        loadCheckboxStates();
     }
 
     @Override
@@ -1204,6 +1224,35 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         }
 
         return tagList;
+    }
+
+    private void clearCheckboxStatesPreferences() {
+        SharedPreferences sharedPref = getSharedPreferences("CheckboxStates", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    private void loadCheckboxStates() {
+        SharedPreferences sharedPref = getSharedPreferences("CheckboxStates", Context.MODE_PRIVATE);
+        Map<String, ?> allEntries = sharedPref.getAll();
+        checkboxStates.clear();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            int key = Integer.parseInt(entry.getKey());
+            boolean value = (Boolean) entry.getValue();
+            checkboxStates.put(key, value);
+        }
+    }
+
+    private void saveCheckboxStates() {
+        SharedPreferences sharedPref = getSharedPreferences("CheckboxStates", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        for (Map.Entry<Integer, Boolean> entry : checkboxStates.entrySet()) {
+            editor.putBoolean(String.valueOf(entry.getKey()), entry.getValue());
+        }
+
+        editor.apply();
     }
 
 }
