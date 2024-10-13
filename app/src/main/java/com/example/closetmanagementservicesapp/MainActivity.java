@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     bottomNavigationView.setItemBackgroundResource(android.R.color.transparent);
                     startActivity(new Intent(MainActivity.this, Cody.class));
                     overridePendingTransition(0, 0);
-
+                    finish();
                     return true;
                 }
 
