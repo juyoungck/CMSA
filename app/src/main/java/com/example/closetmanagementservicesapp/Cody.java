@@ -98,7 +98,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     private static String search_cod_name = null;
 
     private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
-    private static boolean isAppStarted = false;
 
     BottomNavigationView bottomNavigationView;
 
@@ -1254,5 +1253,4 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
         editor.apply();
     }
-
 }

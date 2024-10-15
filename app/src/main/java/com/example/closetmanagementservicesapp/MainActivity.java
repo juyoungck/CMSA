@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
     private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
     private static boolean isAppStarted = false;
+    private long backKeyPressedTime = 0;  // 뒤로가기 버튼을 누른 시간을 기록할 변수
+    private Toast backToast;
 
 
     BottomNavigationView bottomNavigationView;
@@ -165,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                     bottomNavigationView.setItemBackgroundResource(android.R.color.transparent);
                     startActivity(new Intent(MainActivity.this, Cody.class));
                     overridePendingTransition(0, 0);
-                    finish();
                     return true;
                 }
 
@@ -957,6 +958,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         editor.apply();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+            // 2초 이내로 다시 뒤로 가기 버튼을 누르지 않았을 때
+            backKeyPressedTime = System.currentTimeMillis();
+            backToast = Toast.makeText(this, "뒤로가기 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT);
+            backToast.show();
+        } else {
+            // 2초 이내로 다시 뒤로 가기 버튼을 눌렀을 때
+            backToast.cancel();
+            finishAffinity();
+        }
     }
 }
 
