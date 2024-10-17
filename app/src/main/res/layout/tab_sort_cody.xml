@@ -69,6 +69,7 @@
             android:button="@null"
             android:text="봄"
             android:textSize="14dp"
+            android:checked="true"
             android:textAlignment="center"
             android:background="@drawable/left_rounded_off" />
 
@@ -79,6 +80,7 @@
             android:button="@null"
             android:text="여름"
             android:textSize="14dp"
+            android:checked="true"
             android:textAlignment="center"
             android:background="#e9ecef"
             android:id="@+id/weatherSelect_summer"/>
@@ -88,6 +90,7 @@
             android:layout_height="match_parent"
             android:text="가을"
             android:textSize="14dp"
+            android:checked="true"
             android:layout_weight="1"
             android:button="@null"
             android:textAlignment="center"
@@ -99,6 +102,7 @@
             android:layout_height="match_parent"
             android:text="겨울"
             android:textSize="14dp"
+            android:checked="true"
             android:layout_weight="1"
             android:button="@null"
             android:textAlignment="center"
@@ -110,6 +114,7 @@
             android:layout_height="match_parent"
             android:text="전체"
             android:textSize="14dp"
+            android:checked="true"
             android:layout_weight="1"
             android:button="@null"
             android:textAlignment="center"
