@@ -74,7 +74,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"
                 android:text="상의"/>
 
@@ -85,14 +85,14 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"
                 android:text="하의"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -100,7 +100,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -113,7 +113,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24" />
 
             <ImageButton
@@ -123,13 +123,13 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -138,7 +138,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -151,7 +151,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"/>
 
             <ImageButton
@@ -161,13 +161,13 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -176,7 +176,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -189,7 +189,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"/>
 
             <ImageButton
@@ -199,13 +199,13 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
                 android:scaleType="fitCenter"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:src="@drawable/baseline_add_box_24"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -214,7 +214,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#00ff0000"
                 android:layout_columnWeight="1"
                 android:textAlignment="center"
                 android:textColor="#000000"
@@ -252,9 +252,11 @@
 
             />
         <LinearLayout
-            android:layout_width="320dp"
+            android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:paddingRight="15dp"
+            android:paddingLeft="15dp">
 
             <CheckBox
                 android:id="@+id/weatherSelect_spring"
