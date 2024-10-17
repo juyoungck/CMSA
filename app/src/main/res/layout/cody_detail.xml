@@ -138,88 +138,87 @@
             <Button
                 android:id="@+id/detail_cod_top"
                 android:layout_width="150dp"
-                android:layout_height="30dp"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
-                android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="상의"/>
 
             <Button
                 android:id="@+id/detail_cod_bottom"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="하의"/>
 
             <Button
                 android:id="@+id/detail_cod_shoes"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="신발"/>
 
             <Button
                 android:id="@+id/detail_cod_outer"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="외투"/>
 
             <Button
                 android:id="@+id/detail_cod_underwear"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="속옷"/>
 
             <Button
                 android:id="@+id/detail_cod_socks"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="양말"/>
 
             <Button
                 android:id="@+id/detail_cod_accessory"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="액세서리"/>
 
             <Button
                 android:id="@+id/detail_cod_bag"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:textSize="14dp"
                 android:layout_gravity="fill"
-                android:background="#FFFFFF"
+                android:background="#00ff0000"
                 android:drawableTop="@drawable/baseline_add_box_24"
                 android:text="가방"/>
         </GridLayout>
@@ -237,9 +236,11 @@
                 android:layout_marginBottom="8dp"/>
         </LinearLayout>
         <LinearLayout
-            android:layout_width="320dp"
+            android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
 
             <CheckBox
                 android:id="@+id/weatherSelect_spring"
