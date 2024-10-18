@@ -22,6 +22,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -780,13 +781,18 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         });
     }
 
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
+
     private Pair<List<Integer>, List<Integer>> ItemCodyImgBtn(int imgCounter){
 
         List<Integer> imgCounters = new ArrayList<>();
         List<Integer> imgViewCounters = new ArrayList<>();
 
         GridLayout gridLayout = findViewById(R.id.gl_cody);
-        gridLayout.setPadding(0,-70,0,0);
+        gridLayout.setPadding(0,dpToPx(-28),0,0);
         gridLayout.setRowCount(50);
         gridLayout.setColumnCount(2);
 
@@ -794,9 +800,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         for (int col = 0; col < 2; col++) {
             FrameLayout frameLayout = new FrameLayout(this);
             GridLayout.LayoutParams frameParams = new GridLayout.LayoutParams();
-            frameParams.width = 625;
-            frameParams.height = 700;
-            frameParams.setMargins(60, 120,  -190, 0);
+            frameParams.width = dpToPx(254);
+            frameParams.height = dpToPx(285);
+            frameParams.setMargins(dpToPx(24), dpToPx(49),  dpToPx(-77), 0);
             frameLayout.setLayoutParams(frameParams);
 
             GridLayout innerGridLayout = new GridLayout(this);
@@ -814,9 +820,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                     gridImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
                     GridLayout.LayoutParams gridImgViewParams = new GridLayout.LayoutParams();
-                    gridImgViewParams.width = 210;
-                    gridImgViewParams.height = 150;
-                    gridImgViewParams.setMargins(10, 10, 10, 10);
+                    gridImgViewParams.width = dpToPx(85);
+                    gridImgViewParams.height = dpToPx(61);
+                    gridImgViewParams.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
                     gridImgViewParams.rowSpec = GridLayout.spec(row);
                     gridImgViewParams.columnSpec = GridLayout.spec(gridCol);
                     gridImgView.setLayoutParams(gridImgViewParams);
@@ -837,9 +843,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
             // GridLayout에 레이아웃 매개변수 설정
             GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
-            paramsImageButton.width = 440;
-            paramsImageButton.height = 660;
-            paramsImageButton.setMargins(10, 10, 10, 10);
+            paramsImageButton.width = dpToPx(179);
+            paramsImageButton.height = dpToPx(268);
+            paramsImageButton.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
             paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
             paramsImageButton.columnSpec = GridLayout.spec(col);
             clothImgbtn.setLayoutParams(paramsImageButton);
@@ -874,9 +880,9 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
 
             GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
-            paramsTextView.width = 440;
-            paramsTextView.height = 75;
-            paramsTextView.setMargins(70, 0, -190, 0);
+            paramsTextView.width = dpToPx(179);
+            paramsTextView.height = dpToPx(31);
+            paramsTextView.setMargins(dpToPx(28), 0, dpToPx(-77), 0);
             paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
             paramsTextView.columnSpec = GridLayout.spec(col);
             clothTag.setLayoutParams(paramsTextView);
@@ -1061,12 +1067,20 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 gridLayout.setRowCount(50);
                 gridLayout.setColumnCount(2);
 
+                DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                int screenWidth = displayMetrics.widthPixels;
+                int screenHeight = displayMetrics.heightPixels;
+
+                int margin = (int)(screenWidth * 0.05f);
+                int imgMargin = (int)(screenWidth * 0.037f);
+                int frameWidth = (int)((screenWidth - margin * 3) / 2); // 2개의 열과 마진을 고려하여 너비 계산
+                int frameHeight = (int)(screenHeight * 0.4f); // 기존 높이 비율 유지
 
                 FrameLayout frameLayout = new FrameLayout(this);
                 GridLayout.LayoutParams frameParams = new GridLayout.LayoutParams();
-                frameParams.width = 625;
-                frameParams.height = 700;
-                frameParams.setMargins(55, 120, -190, 0);
+                frameParams.width = frameWidth;
+                frameParams.height = frameHeight;
+                frameParams.setMargins(imgMargin, imgMargin * 3, imgMargin, 0); // 좌우 마진 설정
                 frameParams.rowSpec = GridLayout.spec(imgRow * 2);
                 frameParams.columnSpec = GridLayout.spec(i % 2);
                 frameLayout.setLayoutParams(frameParams);
@@ -1074,28 +1088,34 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 ImageButton imageButton = new ImageButton(this);
                 imageButton.setId(imgCounter);
                 imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
-                imageButton.setPadding(0,0,0,0);
+                imageButton.setPadding(0, 0, 0, 0);
                 imageButton.setImageBitmap(thumbBitmap);
                 imageButton.setBackgroundColor(Color.parseColor("#00ff0000"));
 
-                // 내부 GridLayout 생성
                 GridLayout innerGridLayout = new GridLayout(this);
                 innerGridLayout.setRowCount(4);
                 innerGridLayout.setColumnCount(2);
 
-                // 내부 ImageView 생성 및 추가
+                int totalInnerColumns = 2;
+                int totalInnerRows = 4;
+                int innerImageViewMargin = (int)(frameWidth * 0.005f);
+
+                int innerImageViewWidth = (int)((frameWidth - innerImageViewMargin * (totalInnerColumns + 1)) / totalInnerColumns * 0.93);
+                int innerImageViewHeight = (int)((frameHeight - innerImageViewMargin * (totalInnerRows + 1)) / totalInnerRows * 0.7);
+
                 List<ImageView> innerImageViews = new ArrayList<>();
-                for (int row = 0; row < 4; row++) {
-                    for (int gridCol = 0; gridCol < 2; gridCol++) {
+                for (int row = 0; row < totalInnerRows; row++) {
+                    for (int gridCol = 0; gridCol < totalInnerColumns; gridCol++) {
                         ImageView gridImgView = new ImageView(this);
                         gridImgView.setBackgroundColor(Color.parseColor("#00ff0000"));
-                        gridImgView.setId(imgViewCounter);
+                        gridImgView.setId(imgViewCounter++);
                         gridImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
                         GridLayout.LayoutParams gridImgViewParams = new GridLayout.LayoutParams();
-                        gridImgViewParams.width = 210;
-                        gridImgViewParams.height = 150;
-                        gridImgViewParams.setMargins(10, 10, 10, 10);
+                        gridImgViewParams.width = innerImageViewWidth;
+                        gridImgViewParams.height = innerImageViewHeight;
+                        gridImgViewParams.setMargins(innerImageViewMargin * 5, innerImageViewMargin * 5,
+                                innerImageViewMargin * 5, innerImageViewMargin * 5);
                         gridImgViewParams.rowSpec = GridLayout.spec(row);
                         gridImgViewParams.columnSpec = GridLayout.spec(gridCol);
                         gridImgView.setLayoutParams(gridImgViewParams);
@@ -1105,7 +1125,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                     }
                 }
 
-                // TextView 생성
                 TextView textView = new TextView(this);
                 textView.setId(tagCounter);
                 textView.setBackgroundColor(Color.parseColor("#00ff0000"));
@@ -1116,21 +1135,24 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 textView.setText(cod_name);
 
                 frameLayout.addView(innerGridLayout);
-
                 gridLayout.addView(frameLayout);
 
+                int imageButtonWidth = (int)(screenWidth * 0.41f);
+                int imageButtonHeight = (int)(screenHeight * 0.3f);
+                int imgBtnLeftMargin = (int)(screenWidth * 0.045f);
+                int imgBtnTopMargin = (int)(screenHeight * 0.056f);
+
                 GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
-                GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
-
-                paramsImageButton.width = 440;
-                paramsImageButton.height = 660;
-                paramsImageButton.setMargins(65, 130, 10, 10);
+                paramsImageButton.width = imageButtonWidth;
+                paramsImageButton.height = imageButtonHeight;
+                paramsImageButton.setMargins(imgBtnLeftMargin, imgBtnTopMargin, margin / 2, 0);
                 paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
-                paramsImageButton.columnSpec = GridLayout.spec(i % 2); // 2개의 열로 정렬
+                paramsImageButton.columnSpec = GridLayout.spec(i % 2);
 
-                paramsTextView.width = 440;
-                paramsTextView.height = 75;
-                paramsTextView.setMargins(65, 0, -190, 0);
+                GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
+                paramsTextView.width = imageButtonWidth;
+                paramsTextView.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                paramsTextView.setMargins(margin, -margin * 3, margin / 2, 0); // 마진을 줄여서 여백 감소
                 paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
                 paramsTextView.columnSpec = GridLayout.spec(i % 2);
 
