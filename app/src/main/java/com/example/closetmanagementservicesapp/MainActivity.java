@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -641,6 +642,11 @@ public class MainActivity extends AppCompatActivity {
         gpsHelper.checkRunTimePermission();
     }
 
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
+
     private List<Integer> ItemAddImg(int imgCounter){
 
         List<Integer> imgCounters = new ArrayList<>();
@@ -654,14 +660,14 @@ public class MainActivity extends AppCompatActivity {
                 // ImageButton
                 ImageButton clothImgbtn = new ImageButton(this);
                 clothImgbtn.setBackgroundColor(Color.parseColor("#00ff0000"));
-                clothImgbtn.setPadding(150, 150, 150, 150);
+                clothImgbtn.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
                 clothImgbtn.setId(imgCounter);
 
                 // GridLayout에 레이아웃 매개변수 설정
                 GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
-                paramsImageButton.width = 300;
-                paramsImageButton.height = 300;
-                paramsImageButton.setMargins(30, 45, 30, 0);
+                paramsImageButton.width = dpToPx(121);
+                paramsImageButton.height = dpToPx(121);
+                paramsImageButton.setMargins(dpToPx(10), dpToPx(18), dpToPx(10), dpToPx(0));
                 paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
                 paramsImageButton.columnSpec = GridLayout.spec(col);
                 clothImgbtn.setLayoutParams(paramsImageButton);
@@ -697,9 +703,9 @@ public class MainActivity extends AppCompatActivity {
                 clothTag.setId(tagCounter);
 
                 GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
-                paramsTextView.width = 300;
-                paramsTextView.height = 75;
-                paramsTextView.setMargins(30, 0, 30, 0);
+                paramsTextView.width = dpToPx(121);
+                paramsTextView.height = dpToPx(30);
+                paramsTextView.setMargins(dpToPx(12), 0, dpToPx(12), 0);
                 paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
                 paramsTextView.columnSpec = GridLayout.spec(col);
                 clothTag.setLayoutParams(paramsTextView);
@@ -840,32 +846,43 @@ public class MainActivity extends AppCompatActivity {
                 ImageButton imageButton = new ImageButton(this);
                 imageButton.setId(imgCounter);
                 imageButton.setImageBitmap(bitmap);
+                imageButton.setBackgroundColor(Color.parseColor("#00ff0000"));
+                imageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                int screenWidth = displayMetrics.widthPixels;
+                int screenHeight = displayMetrics.heightPixels;
+
+                float marginRatio = 0.02f; // 마진을 화면 너비의 2%로 설정
+                float buttonWidthRatio = (1 - marginRatio * 4) / 3; // 버튼 너비 비율 계산
+
+                int margin = (int) (screenWidth * marginRatio);
+                int buttonSize = (int) (screenWidth * buttonWidthRatio * 0.962);
+
+                float textSizeRatio = 0.02f; // 텍스트 크기를 화면 높이의 2%로 설정
+                float textSizePx = screenHeight * textSizeRatio;
 
                 TextView textView = new TextView(this);
                 textView.setId(tagCounter);
                 textView.setGravity(Gravity.CENTER);
-                float dpValue = 16;
-                float fixedTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, getResources().getDisplayMetrics());
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, fixedTextSize);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx);
                 textView.setText(c_name);
 
-                // GridLayout에 레이아웃 매개변수 설정
                 GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
                 GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
 
-                paramsImageButton.width = 300; // 버튼의 너비 설정
-                paramsImageButton.height = 300; // 버튼의 높이 설정
-                paramsImageButton.setMargins(30, 45, 30, 0); // 여백 설정
-                paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2); // 2행에 이미지 버튼 위치
-                paramsImageButton.columnSpec = GridLayout.spec(i % 3); // 3개의 열로 정렬
+                paramsImageButton.width = buttonSize;
+                paramsImageButton.height = buttonSize; // 정사각형 버튼
+                paramsImageButton.setMargins(margin, margin * 2, margin, margin);
+                paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
+                paramsImageButton.columnSpec = GridLayout.spec(i % 3);
 
-                paramsTextView.width = 300; // 텍스트뷰의 너비 설정
-                paramsTextView.height = 75; // 텍스트뷰의 높이 설정
-                paramsTextView.setMargins(30, 0, 30, 0); // 여백 설정
-                paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1); // 2행 + 1에 텍스트 위치
-                paramsTextView.columnSpec = GridLayout.spec(i % 3); // 3개의 열로 정렬
+                paramsTextView.width = buttonSize;
+                paramsTextView.height = GridLayout.LayoutParams.WRAP_CONTENT;
+                paramsTextView.setMargins(margin, 0, margin, 0);
+                paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
+                paramsTextView.columnSpec = GridLayout.spec(i % 3);
 
-                // GridLayout에 뷰 추가
                 gridLayout.addView(imageButton, paramsImageButton);
                 gridLayout.addView(textView, paramsTextView);
 
