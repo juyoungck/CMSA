@@ -1138,7 +1138,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 gridLayout.addView(frameLayout);
 
                 int imageButtonWidth = (int)(screenWidth * 0.41f);
-                int imageButtonHeight = (int)(frameHeight * 0.78f);
+                int imageButtonHeight = (int)(frameHeight * 0.82f);
                 int imgBtnLeftMargin = (int)(screenWidth * 0.045f);
                 int imgBtnTopMargin = (int)(screenHeight * 0.056f);
 
