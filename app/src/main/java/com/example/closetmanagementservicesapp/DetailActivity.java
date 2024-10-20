@@ -143,6 +143,7 @@ public class DetailActivity extends AppCompatActivity {
                 if (isChecked) {
                     detail_Cancle.setVisibility(View.VISIBLE);
                     detailModifyButton.setText("저장");
+                    detailModifyButton.setBackgroundColor(Color.parseColor("#ff6e6e"));
                     isModified = true;
                     detail_c_img.setClickable(true);
                     detail_c_loc.setEnabled(true);
