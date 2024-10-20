@@ -1152,7 +1152,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
                 paramsTextView.width = imageButtonWidth;
                 paramsTextView.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                paramsTextView.setMargins(margin, -margin * 3, margin / 2, 0); // 마진을 줄여서 여백 감소
+                paramsTextView.setMargins(margin, -margin * 2, margin / 2, 0); // 마진을 줄여서 여백 감소
                 paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
                 paramsTextView.columnSpec = GridLayout.spec(i % 2);
 
