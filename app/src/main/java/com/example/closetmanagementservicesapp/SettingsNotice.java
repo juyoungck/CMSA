@@ -18,8 +18,6 @@ public class SettingsNotice extends AppCompatActivity {
         btnBack_notice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SettingsNotice.this, Settings.class);
-                startActivity(intent);
                 finish();
             }
         });

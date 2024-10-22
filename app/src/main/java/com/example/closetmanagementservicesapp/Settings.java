@@ -21,8 +21,6 @@ public class Settings extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Settings.this, MainActivity.class);
-                startActivity(intent);
                 finish();
             }
         });
@@ -36,6 +34,7 @@ public class Settings extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
         // 고객센터
         Button btnService = (Button) findViewById(R.id.btnService);
         btnService.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +50,7 @@ public class Settings extends AppCompatActivity {
         btnVersion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast toast = Toast.makeText(getApplicationContext(), "현재 애플리케이션 버전: 0.0.0",Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(getApplicationContext(), "현재 애플리케이션 버전: 1.0.0",Toast.LENGTH_SHORT);
                 toast.show();
             }
         });

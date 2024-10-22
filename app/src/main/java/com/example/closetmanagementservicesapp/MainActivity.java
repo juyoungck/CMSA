@@ -65,41 +65,38 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
+    // DB
     private DBHelper dbHelper;
     private SQLiteDatabase db;
+
+    // 스피너 및 정렬
     private static List<Integer> c_loc_value = new ArrayList<>();
+    private static int selected_Clothes_LocId = 1;
+    private static ArrayList<Integer> st_sort_c_id = null;
+    private static String orderBy_Clothes_set = null;
+    private static String search_c_name = null;
+    private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
 
-    String date = "", time = "";
-    String x = "60", y = "127";
-
-    TextView weatherTextView,timeNow;
-    ImageView imageViewIcon;
-
+    // GPS 및 날씨
     private GpsHelper gpsHelper;
     private ExcelReader excelReader;
+    String x = "60", y = "127";
 
+    // UI / UX
+    TextView weatherTextView,timeNow;
+    ImageView imageViewIcon;
     private GridLayout gridLayout;
     private int imgCounter = 1001;
     private int tagCounter = 2001;
     private int imgRow = 0;
     private int tagRow = 0;
 
-    private static Boolean BasicLocationLoad = true;
-    private static boolean isSpinnerValueChanged = false;
-    private static int selected_Clothes_LocId = 1;
-    private static Boolean Clothes_FilterDataLoad = false;
-    private static Boolean ClickSearchView = false;
-    private static ArrayList<Integer> st_sort_c_id = null;
-    private static String orderBy_Clothes_set = null;
-    private static String search_c_name = null;
 
-    private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
+    // 기타 기능
+    BottomNavigationView bottomNavigationView;
     private static boolean isAppStarted = false;
     private long backKeyPressedTime = 0;  // 뒤로가기 버튼을 누른 시간을 기록할 변수
     private Toast backToast;
-
-
-    BottomNavigationView bottomNavigationView;
 
 
     @SuppressLint("MissingInflatedId")
@@ -108,47 +105,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!isAppStarted) {
-            clearCheckboxStatesPreferences(); // 앱이 처음 시작되었으므로 정렬 설정 초기화
-            isAppStarted = true; // 앱이 시작되었음을 표시
-        }
-
-        loadCheckboxStates();
-
         // DB OPEN
         dbHelper = MyApplication.getDbHelper();
         db = dbHelper.getWritableDatabase();
 
+        // 옷장 위치, 코디 테마 기본값 추가. 이미 기본값이 존재하면 추가 X
+        basicLocationSet("Closet_Location", "c_loc");
+        basicLocationSet("Coordy_Location", "cod_loc");
+
+        if (!isAppStarted) {
+            clearCheckboxStatesPreferences(); // 앱이 처음 시작되었으므로 정렬 설정 초기화
+            isAppStarted = true; // 앱이 시작되었음을 표시
+        }
+        loadCheckboxStates();
+
         gridLayout = findViewById(R.id.gl_main);
-
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-
-        // 중앙 이미지 레이아웃과 이미지 호출
-        List<Integer> imgCounterList = ItemAddImg(imgCounter);
-
-        // 중앙 태그 레이아웃과 태그 호출
-        List<Integer> tagCounterList = ItemAddTag(tagCounter);
-
-        // 기본 옷장, 코디 위치 추가
-        basicLocation(BasicLocationLoad);
 
         // 옷장 위치 스피너 출력
         fillSpinner_c_loc();
         Spinner_Selected();
 
-        if (ClickSearchView) {
-
-        }
-
-        if (!Clothes_FilterDataLoad) {
-            displayDataCloset();
-        } else if (Clothes_FilterDataLoad) {
-            filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
-        }
-
-        if (isSpinnerValueChanged) {
-            Clothes_FilterDataLoad = true;
-        }
+        // 옷장 데이터 출력
+        filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
 
         bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -279,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
                         // 데이터 출력을 위한 메서드
                         st_sort_c_id = sort_c_id;
                         orderBy_Clothes_set = orderBy;
-                        Clothes_FilterDataLoad = true;
                         filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
                     }
                 }, checkboxStates);
@@ -334,10 +312,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //날씨, gps 코드
-        /*long now = System.currentTimeMillis();
-        Date mDate = new Date(now);*/
-
+        // GPS 및 날씨 코드
         SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
         SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH", Locale.KOREA);
         SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm", Locale.KOREA);
@@ -346,9 +321,6 @@ public class MainActivity extends AppCompatActivity {
         simpleDateFormat2.setTimeZone(KoreaTime);
         simpleDateFormat3.setTimeZone(KoreaTime);
         Date date = new Date();
-        Log.d("시간",simpleDateFormat1.format(date));
-        Log.d("시간",simpleDateFormat2.format(date));
-        Log.d("시간",simpleDateFormat3.format(date));
 
         String getDate = simpleDateFormat1.format(date);
         String getTime =  simpleDateFormat2.format(date)+ "00";
@@ -429,22 +401,24 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         if(GPSImpo.printingGPS != null){
             textview_address.setText(GPSImpo.printingGPS+" "+GPSImpo.printingGPS2);
             x = GPSImpo.weatherX;
             y = GPSImpo.weatherY;
         }
+
         weatherTextView = findViewById(R.id.weatherDegree);
         imageViewIcon = findViewById(R.id.btnWeather);
         WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
         wd.fetchWeather(getDate, getTime, x, y);  // 비동기적으로 날씨 데이터를 가져옴
+
         SearchView searchView = findViewById(R.id.btnSearch);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // 검색어가 제출되면 실행될 코드 (제출 후 엔터 시)
                 search_c_name = query;
-                Clothes_FilterDataLoad = true;
                 filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, query, selected_Clothes_LocId);
                 return false;
             }
@@ -454,7 +428,6 @@ public class MainActivity extends AppCompatActivity {
                 // 검색어가 변경될 때마다 필터링된 데이터를 보여주는 메소드 호출
                 Log.d("SearchView", newText);
                 search_c_name = newText;
-                Clothes_FilterDataLoad = true;
                 filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, newText, selected_Clothes_LocId);
                 return false;
             }
@@ -467,84 +440,28 @@ public class MainActivity extends AppCompatActivity {
         loadCheckboxStates();
     }
 
-    // 임의 데이터 출력, 추후 출력 코드 작성 시 아래와 비슷하게 작성할 예정
-    private void displayDataCloset() {
-        // Main_Closet 테이블의 모든 값을 불러옴
-        Cursor cursor = db.query("Main_Closet", null, null, null, null, null, null);
+    //위치 권한 코드
+    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
+        super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
+        gpsHelper.checkRunTimePermission();
+    }
 
-        int initialImgCounter = 1001;
-        int initialTagCounter = 2001;
+    // 옷장 위치, 코디 테마 기본값 추가. 이미 기본값이 존재하면 추가 X
+    private void basicLocationSet(String tableName, String columnName) {
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + tableName + " WHERE " + columnName + " = 1", null);
 
-        // 커서 위치 유효성 검사 후 문제가 없으면 해당 코드 실행
-        if (cursor != null && cursor.moveToFirst()) {
-            int count = cursor.getCount();
-
-            GridLayout gridLayout = findViewById(R.id.gl_main);
-
-            for (int i = 0; i < count; i++) {
-                String c_name = cursor.getString(cursor.getColumnIndexOrThrow("c_name"));
-                String c_img = cursor.getString(cursor.getColumnIndexOrThrow("c_img"));
-                Bitmap bitmap = BitmapFactory.decodeFile(c_img);
-
-                int imgCounter = initialImgCounter + i; // ImageButton의 ID
-                int tagCounter = initialTagCounter + i; // TextView의 ID
-
-                ImageButton imageButton = (ImageButton) findViewById(imgCounter);
-                TextView textView = (TextView) findViewById(tagCounter);
-
-                // 유효성 검사 후 문제가 없으면 해당 코드 실행 (현재 오류 발생 중, 추후 수정)
-                if (textView != null && imageButton != null) {
-                    textView.setText(c_name);
-                    imageButton.setImageBitmap(bitmap);
-
-                    if ((imgCounter - 1000) % 3 == 0) {
-                        imgRow++;
-                        imgCounter++;
-                        List<Integer> imgCounterList = ItemAddImg(imgCounter);
-                        imgCounter += imgCounterList.size();
-                    }
-
-                    if ((tagCounter - 2000) % 3 == 0) {
-                        tagRow++;
-                        tagCounter++;
-                        List<Integer> tagCounterList = ItemAddTag(tagCounter);
-                        tagCounter += tagCounterList.size();
-                    }
-
-                    int finalI = i;
-
-                    // 이미지 버튼을 클릭하면 해당하는 컬럼의 모든 데이터를 볼 수 있는 탭으로 이동한다. (DetailActivity.java와 activity_detail.xml 파일 참고)
-                    imageButton.setOnClickListener(view -> {
-                        new Thread(() -> {
-                            Cursor detailCursor = db.query("Main_Closet", null, null, null, null, null, null);
-                            if (detailCursor != null && detailCursor.moveToPosition(finalI)) {
-                                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                                intent.putExtra("c_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("c_id")));
-                                intent.putExtra("c_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_img")));
-                                intent.putExtra("c_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("c_loc")));
-                                intent.putExtra("c_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_name")));
-                                intent.putExtra("c_type", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_type")));
-                                intent.putExtra("c_size", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_size")));
-                                intent.putExtra("c_brand", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_brand")));
-                                intent.putExtra("c_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("c_tag")));
-                                intent.putExtra("c_memo", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_memo")));
-                                intent.putExtra("c_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("c_date")));
-                                intent.putExtra("c_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("c_stack")));
-
-                                // 커서 닫기 및 인텐트 실행은 UI 스레드에서 실행
-                                runOnUiThread(() -> {
-                                    startActivity(intent);
-                                    detailCursor.close(); // 사용 후 커서 닫기
-                                });
-                            } else if (detailCursor != null) {
-                                detailCursor.close(); // 커서가 유효하지 않을 경우에도 닫기
-                            }
-                        }).start();
-                    });
-                }
-                cursor.moveToNext();
-            }
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
             cursor.close();
+
+            if (count == 0) {
+                ContentValues values = new ContentValues();
+                values.put(columnName, 1);
+                values.put(columnName + "_name", tableName.equals("Closet_Location") ? "기본 옷장(전체)" : "기본 코디(전체)");
+                values.put(columnName + "_date", getToday());
+                db.insert(tableName, null, values);
+            }
         }
     }
 
@@ -584,7 +501,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
                 selected_Clothes_LocId = c_loc_value.get(position);
-                isSpinnerValueChanged = true;
                 filterDataByQuery(st_sort_c_id, orderBy_Clothes_set, search_c_name, selected_Clothes_LocId);
             }
 
@@ -593,130 +509,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-
-    // MainActivity가 종료 될 때 호출 되는 메서드
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        // MyApplication 클래스에서 앱이 정상적으로 종료될 때 db 파일을 닫는 코드가 있지만
-        // 정상적으로 종료되지 않았을 때는 db 파일이 닫히지 앋기 때문에 이 곳에도 코드를 추가함
-        if (db != null && db.isOpen()) {
-            db.close();
-        }
-    }
-
-    private void basicLocation(boolean basicLocationLoad) {
-        if (basicLocationLoad) {
-            ContentValues values = new ContentValues();
-            values.put("c_loc", 1);
-            values.put("c_loc_name", "전체");
-            values.put("c_loc_date", getToday());
-            db.insert("Closet_Location", null, values);
-
-            values = new ContentValues();
-            values.put("cod_loc", 1);
-            values.put("cod_loc_name", "기본");
-            values.put("cod_loc_date", getToday());
-            db.insert("Coordy_Location", null, values);
-
-            BasicLocationLoad = false;
-        }
-    }
-
-    private String getToday() {
-        DateFormat Today = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREAN);
-        TimeZone KoreaTime = TimeZone.getTimeZone("Asia/Seoul");
-        Today.setTimeZone(KoreaTime);
-
-        Date date = new Date();
-
-        return Today.format(date);
-    }
-
-    //위치 권한 코드
-    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
-        super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
-        gpsHelper.checkRunTimePermission();
-    }
-
-    private int dpToPx(int dp) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
-    }
-
-    private List<Integer> ItemAddImg(int imgCounter){
-
-        List<Integer> imgCounters = new ArrayList<>();
-
-        GridLayout gridLayout = findViewById(R.id.gl_main);
-        gridLayout.setRowCount(50);
-        gridLayout.setColumnCount(3);
-
-
-            for (int col = 0; col < 3; col++) {
-                // ImageButton
-                ImageButton clothImgbtn = new ImageButton(this);
-                clothImgbtn.setBackgroundColor(Color.parseColor("#00ff0000"));
-                clothImgbtn.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
-                clothImgbtn.setId(imgCounter);
-
-                // GridLayout에 레이아웃 매개변수 설정
-                GridLayout.LayoutParams paramsImageButton = new GridLayout.LayoutParams();
-                paramsImageButton.width = dpToPx(121);
-                paramsImageButton.height = dpToPx(121);
-                paramsImageButton.setMargins(dpToPx(10), dpToPx(18), dpToPx(10), dpToPx(0));
-                paramsImageButton.rowSpec = GridLayout.spec(imgRow * 2);
-                paramsImageButton.columnSpec = GridLayout.spec(col);
-                clothImgbtn.setLayoutParams(paramsImageButton);
-
-                // GridLayout에 뷰 추가
-                gridLayout.addView(clothImgbtn);
-                imgCounters.add(imgCounter);
-                imgCounter++;
-            }
-
-
-        return imgCounters;
-    }
-
-    private List<Integer> ItemAddTag(int tagCounter) {
-
-        List<Integer> tagCounters = new ArrayList<>();
-
-        GridLayout gridLayout = findViewById(R.id.gl_main);
-        gridLayout.setRowCount(50);
-        gridLayout.setColumnCount(3);
-
-
-            for (int col = 0; col < 3; col++) {
-
-                // TextView 생성 및 설정
-                TextView clothTag = new TextView(this);
-                clothTag.setBackgroundColor(Color.parseColor("#00ff0000"));
-                clothTag.setGravity(Gravity.CENTER);
-                float dpValue = 16;
-                float fixedTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, getResources().getDisplayMetrics());
-                clothTag.setTextSize(TypedValue.COMPLEX_UNIT_PX, fixedTextSize);
-                clothTag.setId(tagCounter);
-
-                GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
-                paramsTextView.width = dpToPx(121);
-                paramsTextView.height = dpToPx(30);
-                paramsTextView.setMargins(dpToPx(12), 0, dpToPx(12), 0);
-                paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
-                paramsTextView.columnSpec = GridLayout.spec(col);
-                clothTag.setLayoutParams(paramsTextView);
-
-                // GridLayout에 뷰 추가
-                gridLayout.addView(clothTag);
-                tagCounters.add(tagCounter);
-                tagCounter++;
-            }
-
-        return tagCounters;
     }
 
     // 쿼리로 데이터를 필터링하는 함수
@@ -977,6 +769,17 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    // 오늘 날짜 정보 불러오는 함수
+    private String getToday() {
+        DateFormat Today = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREAN);
+        TimeZone KoreaTime = TimeZone.getTimeZone("Asia/Seoul");
+        Today.setTimeZone(KoreaTime);
+
+        Date date = new Date();
+
+        return Today.format(date);
+    }
+
     @Override
     public void onBackPressed() {
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
@@ -988,6 +791,18 @@ public class MainActivity extends AppCompatActivity {
             // 2초 이내로 다시 뒤로 가기 버튼을 눌렀을 때
             backToast.cancel();
             finishAffinity();
+        }
+    }
+
+    // MainActivity가 종료 될 때 호출 되는 메서드
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // MyApplication 클래스에서 앱이 정상적으로 종료될 때 db 파일을 닫는 코드가 있지만
+        // 정상적으로 종료되지 않았을 때는 db 파일이 닫히지 앋기 때문에 이 곳에도 코드를 추가함
+        if (db != null && db.isOpen()) {
+            db.close();
         }
     }
 }

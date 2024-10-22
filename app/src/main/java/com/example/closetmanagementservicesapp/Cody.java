@@ -69,9 +69,29 @@ import java.util.Set;
 import java.util.TimeZone;
 
 public class Cody extends AppCompatActivity implements WeatherDataCallback {
+    // DB
     private DBHelper dbHelper;
     private SQLiteDatabase db;
+
+    // 스피너 및 정렬
     private static List<Integer> cod_loc_value = new ArrayList<>();
+    private static int selected_Cody_LocId = 1;
+    private static ArrayList<Integer> st_sort_cod_id = null;
+    private static String orderBy_cody_set = null;
+    private static String search_cod_name = null;
+    private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
+
+    // GPS 및 날씨
+    private GpsHelper gpsHelper;
+    private ExcelReader excelReader;
+    String x = "60", y = "127";
+    static String sky = "";
+    static String sky_state = "";
+    static float temp = 0;
+
+    // UI / UX
+    TextView weatherTextView,timeNow;
+    ImageView imageViewIcon;
     private GridLayout gridLayout;
     private int imgCounter = 3001;
     private int tagCounter = 4001;
@@ -81,26 +101,10 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
     private int Call = 0;
     private List<Integer> imgCounterList;
     private List<Integer> imgViewCounterList;
-    private List<Integer> tagCounterList;
-    String date = "", time = "";
-    String x = "60", y = "127";
-    private GpsHelper gpsHelper;
-    private ExcelReader excelReader;
-    TextView weatherTextView,timeNow;
-    ImageView imageViewIcon;
-    static String sky = "";
-    static String sky_state = "";
-    static float temp = 0;
-    private static boolean isSpinnerValueChanged = false;
-    private static int selected_Cody_LocId = 1;
-    private static Boolean Cody_FilterDataLoad = false;
-    private static ArrayList<Integer> st_sort_cod_id = null;
-    private static String orderBy_cody_set = null;
-    private static String search_cod_name = null;
 
-    private HashMap<Integer, Boolean> checkboxStates = new HashMap<>();
-
+    // 기타 기능
     BottomNavigationView bottomNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,10 +115,22 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         dbHelper = MyApplication.getDbHelper();
         db = dbHelper.getWritableDatabase();
 
-        gridLayout = findViewById(R.id.gl_cody);
+        // UI 기본값 설정
+        Pair<List<Integer>, List<Integer>> counters = ItemCodyImgBtn(imgCounter);
+        imgCounterList = counters.first;
+        imgViewCounterList = counters.second;
+        ItemCodyTag(tagCounter);
 
+        gridLayout = findViewById(R.id.gl_cody);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.btnCody);
+
+        // 코디 테마 스피너 출력
+        fillSpinner_cod_loc();
+        Spinner_Selected();
+
+        // 코디 데이터 출력
+        filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
 
         bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -141,27 +157,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
             }
         });
 
-
-        Pair<List<Integer>, List<Integer>> counters = ItemCodyImgBtn(imgCounter);
-        imgCounterList = counters.first;
-        imgViewCounterList = counters.second;
-        ItemCodyTag(tagCounter);
-
-        // 코디 위치 스피너 출력
-        fillSpinner_cod_loc();
-        Spinner_Selected();
-
-        if (!Cody_FilterDataLoad) {
-            displayDataCody();
-        } else if (Cody_FilterDataLoad) {
-            filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
-        }
-
-        if (isSpinnerValueChanged) {
-            Cody_FilterDataLoad = true;
-        }
-
-        // 하단 등록 버튼 이동
+        // 하단 등록 버튼(+) 이동
         ImageButton btnAdd = (ImageButton) findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,7 +262,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                         // 데이터 출력을 위한 메서드
                         st_sort_cod_id = sort_cod_id;
                         orderBy_cody_set = orderBy;
-                        Cody_FilterDataLoad = true;
                         filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
                     }
                 }, checkboxStates);
@@ -319,7 +314,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
             }
         });
 
-        //날씨 코드
+        // GPS 및 날씨 코드
         SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
         SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH", Locale.KOREA);
         SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm", Locale.KOREA);
@@ -328,9 +323,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         simpleDateFormat2.setTimeZone(KoreaTime);
         simpleDateFormat3.setTimeZone(KoreaTime);
         Date date = new Date();
-        Log.d("시간",simpleDateFormat1.format(date));
-        Log.d("시간",simpleDateFormat2.format(date));
-        Log.d("시간",simpleDateFormat3.format(date));
 
         String getDate = simpleDateFormat1.format(date);
         String getTime =  simpleDateFormat2.format(date)+ "00";
@@ -411,11 +403,13 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
             }
         });
+
         if(GPSImpo.printingGPS != null){
             textview_address.setText(GPSImpo.printingGPS+" "+GPSImpo.printingGPS2);
             x = GPSImpo.weatherX;
             y = GPSImpo.weatherY;
         }
+
         weatherTextView = findViewById(R.id.weatherDegree);
         imageViewIcon = findViewById(R.id.btnWeather);
         WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
@@ -427,7 +421,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
             public boolean onQueryTextSubmit(String query) {
                 // 검색어가 제출되면 실행될 코드 (제출 후 엔터 시)
                 search_cod_name = query;
-                Cody_FilterDataLoad = true;
                 filterDataByQuery(st_sort_cod_id, orderBy_cody_set, query, selected_Cody_LocId);
                 return false;
             }
@@ -437,7 +430,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                 // 검색어가 변경될 때마다 필터링된 데이터를 보여주는 메소드 호출
                 Log.d("SearchView", newText);
                 search_cod_name = newText;
-                Cody_FilterDataLoad = true;
                 filterDataByQuery(st_sort_cod_id, orderBy_cody_set, newText, selected_Cody_LocId);
                 return false;
             }
@@ -566,174 +558,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         Log.d("MainActivity", "날씨 상태: " + sky + ", 강수 상태: " + sky_state + ", 온도: " + temp);
     }
 
-    private void displayDataCody() {
-        // Coordy 테이블의 모든 값을 불러옴
-        Cursor cursor = db.query("Coordy", null, null, null, null, null, null);
-
-        int initialImgCounter = 3001;
-        int initialTagCounter = 4001;
-        int initialImgViewCounter = 5001;
-
-        // 커서 위치 유효성 검사 후 문제가 없으면 해당 코드 실행
-        if (cursor != null && cursor.moveToFirst()) {
-            int count = cursor.getCount();
-
-            GridLayout gridLayout = findViewById(R.id.gl_cody);
-
-            for (int i = 0; i < count; i++) {
-                String cod_name = cursor.getString(cursor.getColumnIndexOrThrow("cod_name"));
-                String cod_img = cursor.getString(cursor.getColumnIndexOrThrow("cod_img"));
-
-                Bitmap thumbBitmap = BitmapFactory.decodeFile(cod_img);
-
-                Integer[] cod_indices = new Integer[8];
-                for (int idx = 0; idx < 8; idx++) {
-                    String columnName = "cod_index" + (idx + 1);
-                    if (!cursor.isNull(cursor.getColumnIndex(columnName))) {
-                        cod_indices[idx] = cursor.getInt(cursor.getColumnIndex(columnName));
-                    } else {
-                        cod_indices[idx] = null;
-                    }
-                }
-
-                // 각 cod_index에 해당하는 c_img 경로를 가져와 비트맵 생성
-                Bitmap[] bitmaps = new Bitmap[8];
-                for (int j = 0; j < 8; j++) {
-                    if (cod_indices[j] != null) {
-                        // Main_Closet에서 c_id로 c_img 경로 가져오기
-                        Cursor closetCursor = db.query("Main_Closet", new String[]{"c_img"},
-                                "c_id=?", new String[]{String.valueOf(cod_indices[j])}, null, null, null);
-                        if (closetCursor != null && closetCursor.moveToFirst()) {
-                            String c_img = closetCursor.getString(closetCursor.getColumnIndexOrThrow("c_img"));
-                            Bitmap bitmap = BitmapFactory.decodeFile(c_img);
-                            bitmaps[j] = bitmap;
-                            closetCursor.close();
-                        } else {
-                            bitmaps[j] = null;
-                        }
-                    } else {
-                        bitmaps[j] = null;
-                    }
-                }
-
-
-                int imgCounter = initialImgCounter + i; // ImageButton의 ID
-                int tagCounter = initialTagCounter + i; // TextView의 ID
-                int imgViewCounter = initialImgViewCounter + i;
-
-                ImageButton imageButton = (ImageButton) findViewById(imgCounter);
-                TextView textView = (TextView) findViewById(tagCounter);
-                ImageView imageView = (ImageView) findViewById(imgViewCounter);
-
-
-                // 유효성 검사 후 문제가 없으면 해당 코드 실행
-                if (textView != null && imageButton != null) {
-                    textView.setText(cod_name);
-                    imageButton.setImageBitmap(thumbBitmap);
-
-                    if (textView != null && imageView != null) {
-                        textView.setText(cod_name);
-                        imageButton.setImageBitmap(thumbBitmap);
-
-                        int totalImages = bitmaps.length; // 전체 이미지 수
-                        int batchSize = 8; // 한 번에 처리할 이미지 수
-
-                        for (int batchStart = 0; batchStart < totalImages; batchStart += batchSize) {
-                            // 각 배치마다 8개의 이미지를 처리
-                            for (int j = 0; j < batchSize; j++) {
-                                int index = batchStart + j;
-                                if (index >= totalImages) {
-                                    break; // 인덱스가 총 이미지 수를 넘으면 종료
-                                }
-                                int imgViewId = imgViewCounter + index + ((batchSize - 1) * Call);
-                                imageView = (ImageView) findViewById(imgViewId);
-                                if (imageView != null) {
-                                    if (bitmaps[index] != null) {
-                                        imageView.setImageBitmap(bitmaps[index]);
-
-                                        // cod_id 값을 태그로 저장 (codIdValues는 cod_id 배열)
-                                        imageView.setTag(cod_indices[index]);
-
-
-                                        Log.d("ImageAssignment", "ImageView ID: " + imgViewId + ", Bitmap Index: " + index);
-                                    } else {
-                                        imageView.setImageBitmap(null); // 이미지가 없으면 빈 이미지로 설정
-                                    }
-                                }
-                            }
-                        }
-
-                        Call++; // 실행 횟수 증가
-                    }
-
-
-                    if ((imgCounter - 3000) % 2 == 0) {
-                        imgRow++;
-                        imgCounter++;
-                        imgViewCounter += 8;
-                        Pair<List<Integer>, List<Integer>> result = ItemCodyImgBtn(imgCounter);
-
-                        // 새로운 값을 기존 리스트에 추가
-                        imgCounterList.clear();  // 기존 리스트 내용 삭제
-                        imgCounterList.addAll(result.first);  // 새로운 값으로 갱신
-
-                        imgViewCounterList.clear();  // 기존 리스트 내용 삭제
-                        imgViewCounterList.addAll(result.second);  // 새로운 값으로 갱신
-
-                        // 카운터 업데이트
-                        imgCounter += imgCounterList.size();
-                        imgViewCounter += imgViewCounterList.size();
-                    }
-
-                    if ((tagCounter - 4000) % 2 == 0) {
-                        tagRow++;
-                        tagCounter++;
-                        List<Integer> tagCounterList = ItemCodyTag(tagCounter);
-                        tagCounter += tagCounterList.size();
-                    }
-
-                    int finalI = i;
-
-                    imageButton.setOnClickListener(view -> {
-                        new Thread(() -> {
-                            Cursor detailCursor = db.query("Coordy", null, null, null, null, null, null);
-                            if (detailCursor != null && detailCursor.moveToPosition(finalI)) {
-                                Intent getIntent = new Intent(Cody.this, DetailCody.class);
-                                getIntent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
-                                getIntent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
-                                getIntent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
-                                getIntent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
-                                getIntent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
-                                getIntent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
-                                getIntent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
-
-                                getIntent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
-                                getIntent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
-                                getIntent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
-                                getIntent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
-                                getIntent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
-                                getIntent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
-                                getIntent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
-                                getIntent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
-
-                                // 커서 닫기 및 인텐트 실행은 UI 스레드에서 실행
-                                runOnUiThread(() -> {
-                                    startActivity(getIntent);
-                                    detailCursor.close(); // 사용 후 커서 닫기
-                                });
-                            } else if (detailCursor != null) {
-                                detailCursor.close(); // 커서가 유효하지 않을 경우에도 닫기
-                            }
-                        }).start();
-                    });
-
-                }
-                cursor.moveToNext();
-            }
-            cursor.close();
-        }
-    }
-
 
     // 코디 위치 스피너 출력
     private void fillSpinner_cod_loc() {
@@ -770,7 +594,6 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
                 selected_Cody_LocId = cod_loc_value.get(position);
-                isSpinnerValueChanged = true;
                 filterDataByQuery(st_sort_cod_id, orderBy_cody_set, search_cod_name, selected_Cody_LocId);
             }
 
@@ -860,10 +683,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         return new Pair<>(imgCounters, imgViewCounters);
     }
 
-
-
     private List<Integer> ItemCodyTag(int tagCounter) {
-
         List<Integer> tagCounters = new ArrayList<>();
 
         GridLayout gridLayout = findViewById(R.id.gl_cody);
