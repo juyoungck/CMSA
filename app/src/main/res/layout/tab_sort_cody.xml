@@ -133,7 +133,7 @@
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="이름순정렬"
+            android:text="시간순정렬"
             android:layout_weight="1"
             android:button="@null"
             android:textSize="14dp"

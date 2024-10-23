@@ -163,7 +163,6 @@ public class TabModify {
         long newRowId = writableDb.insert("Closet_Location", null, values);
 
         if (newRowId != -1) {
-            Toast.makeText(modifyView.getContext(), "입력한 옷장 이름: " + closetName, Toast.LENGTH_SHORT).show();
             itemData.add(closetName);  // 아이템 리스트에 추가
             tabModifyAdapter.notifyDataSetChanged();  // 리스트뷰 갱신
         } else {

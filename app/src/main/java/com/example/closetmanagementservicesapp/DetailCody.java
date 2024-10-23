@@ -309,7 +309,7 @@ public class DetailCody extends AppCompatActivity {
                                 .setPositiveButton("예", (dialog, id) -> {
 
                                     int selectedLocIndex = ((Spinner) findViewById(R.id.detail_cod_loc)).getSelectedItemPosition();
-                                    //Integer cod_loc = cod_loc_value.get(selectedLocIndex);
+                                    Integer cod_loc = cod_loc_value.get(selectedLocIndex);
                                     String cod_name = detail_cod_name.getText().toString();
 
                                     db.beginTransaction();

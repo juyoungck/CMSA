@@ -74,7 +74,7 @@ public class TabSort_Cody extends AppCompatActivity {
                 if (sortSelect_name.isChecked()) {
                     orderBy = "cod_name";
                 } else if (!sortSelect_name.isChecked()){
-                    orderBy = "cod_date";
+                    orderBy = "cod_id";
                 }
                 if (sortSelect_asc.isChecked()) {
                     orderBy += " DESC";
@@ -290,10 +290,10 @@ public class TabSort_Cody extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(sortSelect_name.isChecked()) {
                     sortSelect_name.setBackgroundResource(R.drawable.left_rounded_on);
-                    sortSelect_name.setText("날짜순정렬");
+                    sortSelect_name.setText("이름순정렬");
                 } else {
                     sortSelect_name.setBackgroundResource(R.drawable.left_rounded_off);
-                    sortSelect_name.setText("이름순정렬");
+                    sortSelect_name.setText("날짜순정렬");
                 }
             }
         });

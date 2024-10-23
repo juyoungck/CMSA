@@ -134,7 +134,7 @@ public class TabSort_Closet extends AppCompatActivity {
                 if (sortSelect_name.isChecked()) {
                     orderBy = "c_name";
                 } else if (!sortSelect_name.isChecked()){
-                    orderBy = "c_date";
+                    orderBy = "c_id";
                 }
 
                 if (sortSelect_asc.isChecked()) {

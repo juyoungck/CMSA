@@ -200,6 +200,7 @@ public class CodyAdd extends AppCompatActivity {
                                         .setNegativeButton("취소", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
                                                 //원하는 클릭 이벤트를 넣으시면 됩니다.
+                                                dialog.dismiss();
                                             }
                                         });
                                 builder.show(); // 알림창 띄우기
