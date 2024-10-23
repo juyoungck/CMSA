@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
             if (count == 0) {
                 ContentValues values = new ContentValues();
                 values.put(columnName, 1);
-                values.put(columnName + "_name", tableName.equals("Closet_Location") ? "기본 옷장(전체)" : "기본 코디(전체)");
+                values.put(columnName + "_name", tableName.equals("Closet_Location") ? "기본 옷장(전체)" : "기본 테마(전체)");
                 values.put(columnName + "_date", getToday());
                 db.insert(tableName, null, values);
             }
