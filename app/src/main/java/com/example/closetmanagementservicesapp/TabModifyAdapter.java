@@ -71,7 +71,7 @@ public class TabModifyAdapter extends BaseAdapter {
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("경고");
-                builder.setMessage("정말 삭제하시겠습니까?");
+                builder.setMessage("선택한 옷장에 있는 모든 옷들이 삭제됩니다. \n\n정말 삭제하시겠습니까?");
 
                 builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     @Override
