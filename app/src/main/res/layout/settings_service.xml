@@ -65,7 +65,7 @@
                 android:textColor="@color/black"
                 android:textSize="17dp"
                 android:paddingLeft="20dp"
-                android:text="옷장 관련: dksisori@naver.com" />
+                android:text="옷장 관련: ksisori@naver.com" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
