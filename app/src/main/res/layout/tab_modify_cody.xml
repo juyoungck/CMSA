@@ -62,7 +62,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="81dp"
-            android:text="기본 코디(전체)"
+            android:text="기본 테마(전체)"
             android:background="#ffffff"
             android:gravity="left|center"
             android:paddingLeft="60dp"
