@@ -86,10 +86,10 @@ public class TabModifyCody {
             public void onClick(View view) {
                 try {
                     AlertDialog.Builder builder = new AlertDialog.Builder(modifyView.getContext());
-                    builder.setTitle("태마 추가");
+                    builder.setTitle("테마 추가");
 
                     final EditText input = new EditText(modifyView.getContext());
-                    input.setHint("코디 태마 이름을 입력해주세요.");
+                    input.setHint("코디 테마 이름을 입력해주세요.");
                     builder.setView(input);
 
                     builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
@@ -106,7 +106,7 @@ public class TabModifyCody {
                             if (!closetName.isEmpty()) {
                                 addCoordyItem(closetName, modifyView);  // 옷장 추가 메서드 호출
                             } else {
-                                Toast.makeText(modifyView.getContext(), "코디 태마 이름을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(modifyView.getContext(), "코디 테마 이름을 입력해주세요.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
