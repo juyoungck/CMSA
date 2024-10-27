@@ -822,6 +822,15 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         GridLayout gridLayout = findViewById(R.id.gl_cody);
         gridLayout.removeAllViews();
 
+        LinearLayout noneClothes = findViewById(R.id.noneClothes);
+
+        if (cursor == null || cursor.getCount() == 0) {
+            noneClothes.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            noneClothes.setVisibility(View.GONE);
+        }
+
         // 커서가 유효하면 해당 코드 실행
         if (cursor != null && cursor.moveToFirst()) {
             int count = cursor.getCount();
