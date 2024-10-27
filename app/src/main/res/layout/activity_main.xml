@@ -200,6 +200,8 @@
             android:fillViewport="true"
             android:paddingBottom="56dp">
 
+
+
             <GridLayout
                 android:id="@+id/gl_main"
                 tools:background="#00ff0000"
@@ -207,6 +209,27 @@
                 android:layout_height="match_parent" >
             </GridLayout>
         </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/noneClothes"
+            android:layout_marginTop="-70dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/question_mark" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="옷이 없어요."
+                android:textColor="#adb5bd"
+                android:textSize="20dp"/>
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnAdd"
