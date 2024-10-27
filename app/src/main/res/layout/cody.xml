@@ -202,6 +202,7 @@
             android:fillViewport="true"
             android:paddingBottom="56dp">
 
+
             <GridLayout
                 android:id="@+id/gl_cody"
                 android:layout_width="match_parent"
@@ -210,6 +211,27 @@
 
             </GridLayout>
         </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/noneClothes"
+            android:layout_marginTop="-70dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/question_mark" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="코다가 없어요."
+                android:textColor="#adb5bd"
+                android:textSize="20dp"/>
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnAdd"
@@ -229,7 +251,7 @@
             android:layout_marginRight="10dp"
             android:paddingBottom="40dp"
             android:translationZ="500dp"
-            android:background="@drawable/cod_rec"
+            android:background="@drawable/recommend_hanger"
             android:elevation="50dp" />
 
         <TextView
@@ -241,6 +263,7 @@
             android:translationZ="500dp"
             android:textAlignment="center"
             android:textColor="#76000000"
+            android:textStyle="bold"
             android:text="오늘의\n추천 코디" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
