@@ -619,6 +619,15 @@ public class MainActivity extends AppCompatActivity {
         GridLayout gridLayout = findViewById(R.id.gl_main);
         gridLayout.removeAllViews();
 
+        LinearLayout noneClothes = findViewById(R.id.noneClothes);
+
+        if (cursor == null || cursor.getCount() == 0) {
+            noneClothes.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            noneClothes.setVisibility(View.GONE);
+        }
+
         // 커서 유효성 확인 후 데이터 처리
         if (cursor != null && cursor.moveToFirst()) {
             int count = cursor.getCount();
