@@ -440,6 +440,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         cod_rec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
                 ArrayList<String> tagArgs = getTagArgs();
 
                 StringBuilder tags_builder = new StringBuilder();
@@ -540,6 +541,12 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
+
+                 */
+
+                Intent intent = new Intent(Cody.this, Cody_Recommend.class);
+                intent.putExtra("rec_click", 1);
+                startActivity(intent);
             }
         });
     }

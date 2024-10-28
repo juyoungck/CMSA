@@ -45,6 +45,7 @@
         <activity android:name=".SettingsService" />
         <activity android:name=".DetailActivity"/>
         <activity android:name=".DetailCody" />
+        <activity android:name=".Cody_Recommend" />
         <activity
             android:name=".CameraUtil_Cody"
             android:launchMode="singleTop" />

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="30dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp" >
+            <ImageButton
+                android:layout_width="30dp"
+                android:layout_height="38dp"
+                android:id="@+id/btnBack_rec"
+                android:background="#00ff0000"
+                android:src="@drawable/arrow_back"
+                android:layout_marginLeft="-10dp"
+                android:layout_marginTop="-10dp"/>
+
+            <TextView
+                android:layout_marginTop="-10dp"
+                android:textAlignment="center"
+                android:paddingTop="2dp"
+                android:textSize="30dp"
+                android:layout_width="315dp"
+                android:layout_height="42dp"
+                android:text="코디 추천"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="30dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="20dp"
+                android:text="추천코디 1"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="20dp"
+                android:text="추천코디 2"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:columnCount="1"
+                android:rowCount="4">
+                <ImageButton
+                    android:id="@+id/cod_rec1_top"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24"
+                    android:text="상의" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="상의"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec1_bottom"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24"
+                    android:text="하의" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="하의"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec1_outer"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="외투"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec1_shoes"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="신발"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+            </GridLayout>
+
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:columnCount="1"
+                android:rowCount="4">
+                <ImageButton
+                    android:id="@+id/cod_rec2_top"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24"
+                    android:text="상의" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="상의"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec2_bottom"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24"
+                    android:text="하의" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="하의"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec2_outer"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="외투"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+
+                <ImageButton
+                    android:id="@+id/cod_rec2_shoes"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill"
+                    android:background="#00ff0000"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/baseline_add_box_24" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:background="#00ff0000"
+                    android:text="신발"
+                    android:textAlignment="center"
+                    android:textColor="#000000" />
+            </GridLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
