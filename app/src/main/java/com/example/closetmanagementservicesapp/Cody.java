@@ -55,6 +55,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -440,113 +443,152 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
         cod_rec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                ArrayList<String> tagArgs = getTagArgs();
+                Dialog dialog = new Dialog(Cody.this);
+                View recView = LayoutInflater.from(Cody.this).inflate(R.layout.recommend_options, null);
 
-                StringBuilder tags_builder = new StringBuilder();
-                tags_builder.append("cod_tag IN (");
-                for (int i = 0; i < tagArgs.size(); i++) {
-                    tags_builder.append("?");
-                    if (i < tagArgs.size() - 1) {
-                        tags_builder.append(", ");
-                    }
-                }
-                tags_builder.append(")");
+                dialog.setContentView(recView);
+                dialog.show();
 
-                Log.d("tagArgs", tags_builder.toString());
-                Log.d("tagArgs", String.valueOf(tagArgs));
+                WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+                params.width=WindowManager.LayoutParams.WRAP_CONTENT;
+                params.height=750;
+                dialog.getWindow().setAttributes(params);
 
-                Cursor cursor = db.query("Coordy", new String[]{"cod_id", "cod_name"}, tags_builder.toString(), tagArgs.toArray(new String[0]), null, null, null);
-                ArrayList<Integer> codIdList = new ArrayList<>();
-                ArrayList<String> codNameList = new ArrayList<>();
+                ImageButton btnRecCordy = recView.findViewById(R.id.btnRecCordy);
+                btnRecCordy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ArrayList<String> tagArgs = getTagArgs();
 
-                if (cursor.moveToFirst()) {
-                    do {
-                        int codId = cursor.getInt(cursor.getColumnIndex("cod_id"));
-                        String codName = cursor.getString(cursor.getColumnIndex("cod_name"));
-                        codIdList.add(codId);
-                        codNameList.add(codName);
-                    } while (cursor.moveToNext());
-                }
-                cursor.close();
+                        StringBuilder tags_builder = new StringBuilder();
+                        tags_builder.append("cod_tag IN (");
+                        for (int i = 0; i < tagArgs.size(); i++) {
+                            tags_builder.append("?");
+                            if (i < tagArgs.size() - 1) {
+                                tags_builder.append(", ");
+                            }
+                        }
+                        tags_builder.append(")");
 
-                if (!codIdList.isEmpty()) {
-                    Random rand = new Random();
-                    int randIndex = rand.nextInt(codIdList.size());
-                    int randCodId = codIdList.get(randIndex);
-                    String randCodName = codNameList.get(randIndex);
+                        Log.d("tagArgs", tags_builder.toString());
+                        Log.d("tagArgs", String.valueOf(tagArgs));
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Cody.this);
-                    builder.setTitle("오늘의 추천 코디");
-                    builder.setMessage("추천 코디는 '" + randCodName + "' 코디입니다!\n해당 코디를 보러 가시겠습니까?");
+                        Cursor cursor = db.query("Coordy", new String[]{"cod_id", "cod_name"}, tags_builder.toString(), tagArgs.toArray(new String[0]), null, null, null);
+                        ArrayList<Integer> codIdList = new ArrayList<>();
+                        ArrayList<String> codNameList = new ArrayList<>();
 
-                    builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            new Thread(() -> {
-                                Cursor detailCursor = db.query("Coordy", null, "cod_id = ?", new String[]{String.valueOf(randCodId)}, null, null, null);
+                        if (cursor.moveToFirst()) {
+                            do {
+                                int codId = cursor.getInt(cursor.getColumnIndex("cod_id"));
+                                String codName = cursor.getString(cursor.getColumnIndex("cod_name"));
+                                codIdList.add(codId);
+                                codNameList.add(codName);
+                            } while (cursor.moveToNext());
+                        }
+                        cursor.close();
 
-                                if(detailCursor !=null && detailCursor.moveToFirst()) {
-                                    Intent intent = new Intent(Cody.this, DetailCody.class);
-                                    intent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
-                                    intent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
-                                    intent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
-                                    intent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
-                                    intent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
-                                    intent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
-                                    intent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
+                        if (!codIdList.isEmpty()) {
+                            Random rand = new Random();
+                            int randIndex = rand.nextInt(codIdList.size());
+                            int randCodId = codIdList.get(randIndex);
+                            String randCodName = codNameList.get(randIndex);
 
-                                    intent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
-                                    intent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
-                                    intent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
-                                    intent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
-                                    intent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
-                                    intent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
-                                    intent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
-                                    intent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Cody.this);
+                            builder.setTitle("오늘의 추천 코디");
+                            builder.setMessage("추천 코디는 '" + randCodName + "' 코디입니다!\n해당 코디를 보러 가시겠습니까?");
 
-                                    // 커서 닫기 및 인텐트 실행은 UI 스레드에서 실행
-                                    runOnUiThread(() -> {
-                                        startActivity(intent);
-                                        detailCursor.close(); // 사용 후 커서 닫기
-                                    });
-                                } else if (detailCursor != null) {
-                                    detailCursor.close();
+                            builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    new Thread(() -> {
+                                        Cursor detailCursor = db.query("Coordy", null, "cod_id = ?", new String[]{String.valueOf(randCodId)}, null, null, null);
+
+                                        if(detailCursor !=null && detailCursor.moveToFirst()) {
+                                            Intent intent = new Intent(Cody.this, DetailCody.class);
+                                            intent.putExtra("cod_id", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_id")));
+                                            intent.putExtra("cod_img", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_img")));
+                                            intent.putExtra("cod_loc", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_loc")));
+                                            intent.putExtra("cod_name", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_name")));
+                                            intent.putExtra("cod_tag", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_tag")));
+                                            intent.putExtra("cod_date", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_date")));
+                                            intent.putExtra("cod_stack", detailCursor.getInt(detailCursor.getColumnIndexOrThrow("cod_stack")));
+
+                                            intent.putExtra("cod_index1", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index1")));
+                                            intent.putExtra("cod_index2", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index2")));
+                                            intent.putExtra("cod_index3", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index3")));
+                                            intent.putExtra("cod_index4", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index4")));
+                                            intent.putExtra("cod_index5", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index5")));
+                                            intent.putExtra("cod_index6", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index6")));
+                                            intent.putExtra("cod_index7", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index7")));
+                                            intent.putExtra("cod_index8", detailCursor.getString(detailCursor.getColumnIndexOrThrow("cod_index8")));
+
+                                            // 커서 닫기 및 인텐트 실행은 UI 스레드에서 실행
+                                            runOnUiThread(() -> {
+                                                startActivity(intent);
+                                                detailCursor.close(); // 사용 후 커서 닫기
+                                            });
+                                        } else if (detailCursor != null) {
+                                            detailCursor.close();
+                                        }
+                                    }).start();
                                 }
-                            }).start();
+                            });
+
+                            builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Cody.this);
+                            builder.setTitle("코디 추천 불가");
+                            builder.setMessage("현재 날씨에 적합한 추천 코디가 없습니다.\n더 많은 코디를 등록해 보세요!\n");
+                            builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();  // 다이얼로그 닫기
+                                }
+                            });
+
+                            // 다이얼로그 보여주기
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                         }
-                    });
+                    }
+                });
 
-                    builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    });
+                ImageButton btnRandCordy = recView.findViewById(R.id.btnRandCordy);
+                btnRandCordy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Cody.this);
+                        builder.setMessage("현재 날씨에 맞는\n랜덤 코디를 추천 받으시겠습니까?\n\n※ 4가지 항목(상의, 하의, 외투, 신발)만 추천됩니다.")
+                                .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent intent = new Intent(Cody.this, Cody_Recommend.class);
+                                        intent.putExtra("rec_click", 1);
+                                        startActivity(intent);
+                                    }
+                                })
+                                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                dialog.dismiss(); // Custom Dialog 닫기
+                            }
+                        });
+                        builder.create().show();
 
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Cody.this);
-                    builder.setTitle("코디 추천 불가");
-                    builder.setMessage("현재 날씨에 적합한 추천 코디가 없습니다.\n더 많은 코디를 등록해 보세요!\n");
-                    builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();  // 다이얼로그 닫기
-                        }
-                    });
-
-                    // 다이얼로그 보여주기
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-
-                 */
-
-                Intent intent = new Intent(Cody.this, Cody_Recommend.class);
-                intent.putExtra("rec_click", 1);
-                startActivity(intent);
+                    }
+                });
             }
         });
     }
