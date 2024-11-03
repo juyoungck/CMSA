@@ -50,6 +50,8 @@
                 android:text="디자인"
                 android:textSize="20dp"
                 android:textColor="@color/black"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
                 android:background="#00ff0000"
                 android:paddingLeft="25dp"/>
             <View
@@ -97,6 +99,8 @@
                 android:text="기능"
                 android:textSize="20dp"
                 android:textColor="@color/black"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
                 android:background="#00ff0000"
                 android:paddingLeft="25dp"/>
             <View
