@@ -53,7 +53,7 @@
                 android:textColor="@color/black"
                 android:textSize="17dp"
                 android:paddingLeft="20dp"
-                android:text="공지사항 내용.." />
+                android:text="코디를 추천하는 기능을 사용해 보세요!" />
 
             <View
                 android:layout_width="match_parent"
