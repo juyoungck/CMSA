@@ -1,5 +1,9 @@
 package com.example.closetmanagementservicesapp;
 
+import static com.example.closetmanagementservicesapp.TimeHelper.getDate;
+import static com.example.closetmanagementservicesapp.TimeHelper.getTime;
+import static com.example.closetmanagementservicesapp.TimeHelper.hourMinuteFormat;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -313,29 +317,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // GPS 및 날씨 코드
-        SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
-        SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH", Locale.KOREA);
-        SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm", Locale.KOREA);
-        TimeZone KoreaTime = TimeZone.getTimeZone("Asia/Seoul");
-        simpleDateFormat1.setTimeZone(KoreaTime);
-        simpleDateFormat2.setTimeZone(KoreaTime);
-        simpleDateFormat3.setTimeZone(KoreaTime);
-        Date date = new Date();
-
-        String getDate = simpleDateFormat1.format(date);
-        String getTime =  simpleDateFormat2.format(date)+ "00";
-
         gpsHelper = new GpsHelper(this);
         excelReader = new ExcelReader(this);
 
         gpsHelper.initializeGps();
 
         final Button textview_address = findViewById(R.id.refresh);
-
         ImageButton ShowLocationButton = findViewById(R.id.btnLocation);
-
         timeNow = findViewById(R.id.timeNow);
-        morningAfternoon ma = new morningAfternoon(simpleDateFormat3.format(date));
+
+        // 시간 설정
+        morningAfternoon ma = new morningAfternoon(TimeHelper.getFormattedTime());
         String abc = ma.asd();
         timeNow.setText(abc);
 
@@ -343,56 +335,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 try {
-                    double[] location = gpsHelper.getCurrentLocation();
-                    double latitude = location[0];
-                    double longitude = location[1];
-
-                    String address = gpsHelper.getCurrentAddress(latitude, longitude);
-
-
-                    String[] local = address.split(" ");
-                    String localDong ="";
-                    int a = 4;
-                    int b = 3;
-                    String localTwo;
-                    if (local[1].indexOf("서울")!= -1) {
-                        a = 3;
-                        b = 2;
-                    }
-                    else {
-                        a = 4;
-                        b = 3;
-                    }
-                    /*if (local[a].indexOf("로")!= -1) {
-                        local[a] = local[a].replace("로","");
-                        localDong =local[a]+"동";
-                    }
-                    else {
-                        localDong =local[a];
-                    }*/
-                    localTwo = local[a].substring(0, 2);
-                    String localName = localTwo;
-                    textview_address.setText(local[b]+" "+local[a]);
-                    String[] gridCoordinates = excelReader.readExcel(localName);
-                    String x = gridCoordinates[0];
-                    String y = gridCoordinates[1];
-                    if (x=="0"&&y=="0"){
-                        Toast.makeText(MainActivity.this, "등록된 위치가 없어 위치와 함께 문의 바랍니다", Toast.LENGTH_LONG).show();
-                        x = "60";
-                        y = "127";
-                    }
-                    System.out.println("격자값 x: " + x + ", y: " + y);
-                    //날씨 재동기화
-                    weatherTextView = findViewById(R.id.weatherDegree);
-                    imageViewIcon = findViewById(R.id.btnWeather);
-                    WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
-                    wd.fetchWeather(getDate, getTime, x, y);  // 비동기적으로 날씨 데이터를 가져옴
-
-                    //스테틱으로 값 유지
-                    GPSImpo.printingGPS = local[b];
-                    GPSImpo.printingGPS2 = local[a];
-                    GPSImpo.weatherX = x;
-                    GPSImpo.weatherY = y;
+                    updateLocationAndWeather(textview_address);
                 }
                 catch (Exception e){
                     Toast.makeText(MainActivity.this, "오류가 발생했습니다.", Toast.LENGTH_LONG).show();
@@ -411,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
         weatherTextView = findViewById(R.id.weatherDegree);
         imageViewIcon = findViewById(R.id.btnWeather);
         WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
-        wd.fetchWeather(getDate, getTime, x, y);  // 비동기적으로 날씨 데이터를 가져옴
+        wd.fetchWeather(TimeHelper.getDate(), TimeHelper.getTime(), x, y);  // 비동기적으로 날씨 데이터를 가져옴
 
         SearchView searchView = findViewById(R.id.btnSearch);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -814,5 +757,60 @@ public class MainActivity extends AppCompatActivity {
             db.close();
         }
     }
+    public void updateLocationAndWeather(TextView textView){
+
+        double[] location = gpsHelper.getCurrentLocation();
+        double latitude = location[0];
+        double longitude = location[1];
+
+        String address = gpsHelper.getCurrentAddress(latitude, longitude);
+
+
+        String[] local = address.split(" ");
+        String localDong ="";
+        int a = 4;
+        int b = 3;
+        String localTwo;
+        if (local[1].indexOf("서울")!= -1) {
+            a = 3;
+            b = 2;
+        }
+        else {
+            a = 4;
+            b = 3;
+        }
+                    /*if (local[a].indexOf("로")!= -1) {
+                        local[a] = local[a].replace("로","");
+                        localDong =local[a]+"동";
+                    }
+                    else {
+                        localDong =local[a];
+                    }*/
+        localTwo = local[a].substring(0, 2);
+        String localName = localTwo;
+        textView.setText(local[b]+" "+local[a]);
+        String[] gridCoordinates = excelReader.readExcel(localName);
+        String x = gridCoordinates[0];
+        String y = gridCoordinates[1];
+        if (x=="0"&&y=="0"){
+            Toast.makeText(MainActivity.this, "등록된 위치가 없어 위치와 함께 문의 바랍니다", Toast.LENGTH_LONG).show();
+            x = "60";
+            y = "127";
+        }
+        System.out.println("격자값 x: " + x + ", y: " + y);
+        //날씨 재동기화
+        weatherTextView = findViewById(R.id.weatherDegree);
+        imageViewIcon = findViewById(R.id.btnWeather);
+        WeatherData wd = new WeatherData(weatherTextView,imageViewIcon, null);
+        wd.fetchWeather(TimeHelper.getDate(), TimeHelper.getTime(), x, y);  // 비동기적으로 날씨 데이터를 가져옴
+
+        //스테틱으로 값 유지
+        GPSImpo.printingGPS = local[b];
+        GPSImpo.printingGPS2 = local[a];
+        GPSImpo.weatherX = x;
+        GPSImpo.weatherY = y;
+
+    }
+
 }
 
