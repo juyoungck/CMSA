@@ -391,7 +391,7 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
                 WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
                 params.width=WindowManager.LayoutParams.WRAP_CONTENT;
-                params.height=750;
+                params.height=WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(params);
 
                 ImageButton btnRecCordy = recView.findViewById(R.id.btnRecCordy);
