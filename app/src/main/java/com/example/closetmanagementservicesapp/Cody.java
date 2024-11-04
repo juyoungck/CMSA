@@ -529,6 +529,14 @@ public class Cody extends AppCompatActivity implements WeatherDataCallback {
 
                     }
                 });
+
+                ImageButton recommendClose = recView.findViewById(R.id.recommendClose);
+                recommendClose.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
             }
         });
     }
