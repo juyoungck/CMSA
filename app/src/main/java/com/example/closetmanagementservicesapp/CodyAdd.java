@@ -639,7 +639,7 @@ public class CodyAdd extends AppCompatActivity {
 
         List<Integer> imgCounters = new ArrayList<>();
 
-        gridLayout.setRowCount(200);
+        gridLayout.setRowCount(1000);
         gridLayout.setColumnCount(3);
 
         for (int col = 0; col < 3; col++) {
@@ -672,7 +672,7 @@ public class CodyAdd extends AppCompatActivity {
 
         List<Integer> tagCounters = new ArrayList<>();
 
-        gridLayout.setRowCount(200);
+        gridLayout.setRowCount(1000);
         gridLayout.setColumnCount(3);
 
 
