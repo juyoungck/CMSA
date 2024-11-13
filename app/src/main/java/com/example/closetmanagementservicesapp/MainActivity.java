@@ -461,6 +461,11 @@ public class MainActivity extends AppCompatActivity {
         String[] selectionArgs = null;
         StringBuilder c_id_builder = new StringBuilder();
 
+        if (sort_c_id != null && sort_c_id.isEmpty()) {
+            displayFilteredData(null, new ArrayList<>());
+            return;
+        }
+
         if (selectedLocId > 1) {
             c_id_builder.append("c_loc = ?");  // c_loc 값 필터링
             if ((search_c_name != null && !search_c_name.isEmpty()) || (sort_c_id != null && !sort_c_id.isEmpty())) {

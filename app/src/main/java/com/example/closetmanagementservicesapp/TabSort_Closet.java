@@ -91,14 +91,14 @@ public class TabSort_Closet extends AppCompatActivity {
                 // 의류 카테고리 체크박스 상태 확인
                 if (clothesSelect_top.isChecked()) { clothesArgsList.add("상의"); }
                 if (clothesSelect_bottom.isChecked()) { clothesArgsList.add("하의"); }
-                if (clothesSelect_outer.isChecked()) { clothesArgsList.add("아우터"); }
+                if (clothesSelect_outer.isChecked()) { clothesArgsList.add("외투"); }
                 if (clothesSelect_shoes.isChecked()) { clothesArgsList.add("신발"); }
                 if (clothesSelect_under.isChecked()) { clothesArgsList.add("속옷"); }
                 if (clothesSelect_socks.isChecked()) { clothesArgsList.add("양말"); }
 
                 // 악세사리 카테고리 체크박스 상태 확인
                 if (clothesSelect_hat.isChecked()) { clothesArgsList.add("모자"); }
-                if (clothesSelect_access.isChecked()) { clothesArgsList.add("악세사리"); }
+                if (clothesSelect_access.isChecked()) { clothesArgsList.add("액세서리"); }
                 if (clothesSelect_bag.isChecked()) { clothesArgsList.add("가방"); }
 
                 // 기타 카테고리 체크박스 상태 확인
@@ -108,12 +108,12 @@ public class TabSort_Closet extends AppCompatActivity {
                 if (clothesSelect_input.isChecked()) {
                     if (!clothesSelect_top.isChecked()) { clothesInputArgsList.add("상의"); }
                     if (!clothesSelect_bottom.isChecked()) { clothesInputArgsList.add("하의"); }
-                    if (!clothesSelect_outer.isChecked()) { clothesInputArgsList.add("아우터"); }
+                    if (!clothesSelect_outer.isChecked()) { clothesInputArgsList.add("외투"); }
                     if (!clothesSelect_shoes.isChecked()) { clothesInputArgsList.add("신발"); }
                     if (!clothesSelect_under.isChecked()) { clothesInputArgsList.add("속옷"); }
                     if (!clothesSelect_socks.isChecked()) { clothesInputArgsList.add("양말"); }
                     if (!clothesSelect_hat.isChecked()) { clothesInputArgsList.add("모자"); }
-                    if (!clothesSelect_access.isChecked()) { clothesInputArgsList.add("악세사리"); }
+                    if (!clothesSelect_access.isChecked()) { clothesInputArgsList.add("액세서리"); }
                     if (!clothesSelect_bag.isChecked()) { clothesInputArgsList.add("가방"); }
                     if (!clothesSelect_set.isChecked()) { clothesInputArgsList.add("세트"); }
                     if (!clothesSelect_etc.isChecked()) { clothesInputArgsList.add("기타"); }
@@ -187,9 +187,8 @@ public class TabSort_Closet extends AppCompatActivity {
 
                     Cursor cursor = db.query("Main_Closet", new String[]{"c_id"}, clothes_builder.toString(), args.toArray(new String[0]), null, null, orderBy);
 
+                    sort_c_id.clear();
                     if (cursor != null && cursor.moveToFirst()) {
-                        sort_c_id.clear();
-
                         do {
                             int c_id = cursor.getInt(cursor.getColumnIndexOrThrow("c_id"));
                             sort_c_id.add(c_id);

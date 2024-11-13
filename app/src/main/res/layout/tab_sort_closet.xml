@@ -103,7 +103,7 @@
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="아우터"
+            android:text="외투"
             android:checked="true"
             android:layout_weight="1"
             android:textSize="14dp"
@@ -165,7 +165,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="17dp"
             android:layout_weight="1"
-            android:text="악세사리"
+            android:text="액세서리"
             android:textSize="14dp"
             android:checked="true"/>
 
@@ -188,7 +188,7 @@
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="악세사리"
+            android:text="액세서리"
             android:checked="true"
             android:layout_weight="1"
             android:textSize="14dp"
