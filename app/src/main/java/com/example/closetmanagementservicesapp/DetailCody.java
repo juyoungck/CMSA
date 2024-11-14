@@ -932,7 +932,7 @@ public class DetailCody extends AppCompatActivity {
 
             GridLayout.LayoutParams paramsTextView = new GridLayout.LayoutParams();
             paramsTextView.width = 275;
-            paramsTextView.height = 75;
+            paramsTextView.height = 90;
             paramsTextView.setMargins(30, 0, 30, 0);
             paramsTextView.rowSpec = GridLayout.spec(tagRow * 2 + 1);
             paramsTextView.columnSpec = GridLayout.spec(col);
